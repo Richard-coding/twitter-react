@@ -1,0 +1,102 @@
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 28px;
+  color: #14171a;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #536471;
+}
+
+.field input {
+  border: 1px solid #cfd9de;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #14171a;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.field input:focus {
+  border-color: #1d9bf0;
+  box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.15);
+}
+
+.field input::placeholder {
+  color: #aab8c2;
+}
+
+.btnPrimary {
+  margin-top: 6px;
+  padding: 13px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btnPrimary:hover {
+  background-color: #272c30;
+}
+
+.switchText {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #536471;
+}
+
+.btnLink {
+  background: none;
+  border: none;
+  color: #1d9bf0;
+  font-size: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.btnLink:hover {
+  text-decoration: underline;
+}
