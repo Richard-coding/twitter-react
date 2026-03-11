@@ -1,18 +1,33 @@
-import { useState } from 'react'
-import styles from './AuthPage.module.css'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "./AuthPage.module.css";
+import authService from "../services/auth.service";
+import toast from "react-hot-toast";
 
-interface Props {
-  onGoToRegister: () => void
-}
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-export default function LoginPage({ onGoToRegister }: Props) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  async function handleSubmit(e: React.FormEvent) {
+    try {
+      e.preventDefault();
+      toast.loading("Logando...", { id: "login" });
+      const response = await authService.login({ email, password });
+      toast.success("Login feito com sucesso...", { id: "login" });
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    // TODO: integrar com backend
-    console.log('Login:', { email, password })
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          accessToken: response.accessToken,
+          ...response.user,
+        }),
+      );
+
+      navigate("/");
+    } catch (error) {
+      toast.error("Usuário ou senha errada...", { id: "login" });
+    }
   }
 
   return (
@@ -28,7 +43,7 @@ export default function LoginPage({ onGoToRegister }: Props) {
             type="email"
             placeholder="exemplo@email.com"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -40,7 +55,7 @@ export default function LoginPage({ onGoToRegister }: Props) {
             type="password"
             placeholder="••••••••"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
@@ -51,11 +66,15 @@ export default function LoginPage({ onGoToRegister }: Props) {
       </form>
 
       <p className={styles.switchText}>
-        Não tem uma conta?{' '}
-        <button type="button" className={styles.btnLink} onClick={onGoToRegister}>
+        Não tem uma conta?{" "}
+        <button
+          type="button"
+          className={styles.btnLink}
+          onClick={() => navigate("/register")}
+        >
           Cadastre-se
         </button>
       </p>
     </div>
-  )
+  );
 }

@@ -1,22 +1,20 @@
-import { useState } from 'react'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-
-type Page = 'login' | 'register'
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import { Toaster } from "react-hot-toast";
 
 function App() {
-  const [page, setPage] = useState<Page>('login')
-
   return (
-    <>
-      {page === 'login' && (
-        <LoginPage onGoToRegister={() => setPage('register')} />
-      )}
-      {page === 'register' && (
-        <RegisterPage onGoToLogin={() => setPage('login')} />
-      )}
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+
+      <Toaster />
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
