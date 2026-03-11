@@ -26,6 +26,10 @@ export const authService = {
     const response = await api.post<AuthResponse>("/auth/login", data);
     return response.data;
   },
+  async getMe(): Promise<AuthResponse> {
+    const response = await api.get<AuthResponse>("/auth/me");
+    return response.data;
+  },
 };
 
 export default authService;

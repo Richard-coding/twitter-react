@@ -23,6 +23,8 @@ export default function LoginPage() {
           ...response.user,
         }),
       );
+      
+      localStorage.setItem("accessToken", response.accessToken);
 
       navigate("/");
     } catch (error) {
