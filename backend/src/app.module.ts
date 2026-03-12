@@ -11,6 +11,11 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { PostModule } from './modules/post/post.module';
 import { FollowModule } from './modules/follow/follow.module';
+import { CommentModule } from './modules/comment/comment.module';
+import { ShoppingModule } from './modules/shopping/shopping.module';
+import { MovieModule } from './modules/movie/movie.module';
+import { EventModule } from './modules/event/event.module';
+import { ChoreModule } from './modules/chore/chore.module';
 
 @Module({
   imports: [
@@ -42,6 +47,11 @@ import { FollowModule } from './modules/follow/follow.module';
     UserModule,
     PostModule,
     FollowModule,
+    CommentModule,
+    ShoppingModule,
+    MovieModule,
+    EventModule,
+    ChoreModule,
   ],
   providers: [
     {
