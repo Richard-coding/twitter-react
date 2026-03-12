@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { Like } from './entities/like.entity';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostService {
@@ -37,6 +38,14 @@ export class PostService {
       relations: ['user', 'likes'],
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async update(postId: string, userId: string, dto: UpdatePostDto): Promise<Post> {
+    const post = await this.postRepository.findOne({ where: { id: postId } });
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.userId !== userId) throw new ForbiddenException('Access denied');
+    post.content = dto.content;
+    return this.postRepository.save(post);
   }
 
   async delete(postId: string, userId: string): Promise<void> {
