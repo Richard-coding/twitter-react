@@ -6,6 +6,7 @@ import authService, {
 } from "../services/auth.service";
 import PostService from "../services/post.service";
 import AppSidebar from "../components/AppSidebar";
+import PostComments from "../components/PostComments";
 
 interface Like {
   id: number;
@@ -32,6 +33,14 @@ const HomePage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isEdit, setIsEdit] = useState<Post | null>();
   const [inputEdit, setInputEdit] = useState("");
+  const [openComments, setOpenComments] = useState<Set<string>>(new Set());
+
+  const toggleComments = (postId: string) =>
+    setOpenComments((prev) => {
+      const next = new Set(prev);
+      next.has(postId) ? next.delete(postId) : next.add(postId);
+      return next;
+    });
   const [user, setUser] = useState<Partial<User>>(() => {
     const userStr = localStorage.getItem("user");
     return userStr ? JSON.parse(userStr) : null;
@@ -222,7 +231,22 @@ const HomePage = () => {
                     Editar
                   </button>
                 )}
+
+                {/* Comentários */}
+                <button
+                  className={`flex items-center gap-1.5 transition-colors group ml-auto ${openComments.has(post.id) ? "text-violet-400" : "hover:text-violet-400"}`}
+                  onClick={() => toggleComments(post.id)}
+                >
+                  <span className="p-1.5 rounded-full group-hover:bg-violet-500/10 transition-colors">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                      <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v9c0 1.381-1.119 2.5-2.5 2.5H10.031l-4.242 4.243c-.293.293-.768.293-1.061 0-.14-.14-.22-.331-.22-.53V17H4.498c-1.381 0-2.5-1.119-2.5-2.5v-9zm2.5-.5c-.276 0-.5.224-.5.5v9c0 .276.224.5.5.5h2.5v2.379l3.038-3.038.22-.22c.14-.14.331-.22.53-.22h9.212c.276 0 .5-.224.5-.5v-9c0-.276-.224-.5-.5-.5h-15z" />
+                    </svg>
+                  </span>
+                  Comentários
+                </button>
               </div>
+
+              {openComments.has(post.id) && <PostComments postId={post.id} />}
             </div>
           </article>
         ))}

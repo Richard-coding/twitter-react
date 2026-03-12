@@ -20,3 +20,12 @@ export enum ChoreFrequency {
   BIWEEKLY = 'BIWEEKLY',
   MONTHLY = 'MONTHLY',
 }
+
+export enum ReactionType {
+  HEART = 'HEART',
+  FIRE = 'FIRE',
+  LAUGH = 'LAUGH',
+  SAD = 'SAD',
+  WOW = 'WOW',
+  THUMBS_UP = 'THUMBS_UP',
+}

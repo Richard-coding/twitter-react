@@ -14,6 +14,7 @@ import {
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { CreatePostReactionDto } from './dto/create-post-reaction.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
@@ -74,5 +75,24 @@ export class PostController {
     @CurrentUser('id') userId: string,
   ) {
     return this.postService.unlike(userId, id);
+  }
+
+  @Post(':id/react')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  react(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: CreatePostReactionDto,
+  ) {
+    return this.postService.react(userId, id, dto);
+  }
+
+  @Delete(':id/react')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  unreact(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.postService.unreact(userId, id);
   }
 }
