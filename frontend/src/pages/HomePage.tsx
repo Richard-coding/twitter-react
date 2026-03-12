@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import authService, {
-  type AuthResponse,
   type User,
 } from "../services/auth.service";
 import PostService from "../services/post.service";
+import AppSidebar from "../components/AppSidebar";
 
 interface Like {
   id: number;
@@ -22,14 +22,6 @@ interface Post {
   likes?: Like[];
   user?: { name: string };
   userId: string;
-}
-
-function HouseIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className}>
-      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-    </svg>
-  );
 }
 
 const HomePage = () => {
@@ -120,112 +112,9 @@ const HomePage = () => {
     ? user.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
     : "?";
 
-  const navItems = [
-    {
-      label: "Início",
-      active: true,
-      icon: (
-        <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-          <path d="M22.46 7.57L12.357 2.115c-.223-.12-.49-.12-.713 0L1.543 7.57c-.364.197-.5.652-.303 1.017.135.25.394.393.66.393.12 0 .243-.03.356-.09l.844-.455v8.516c0 1.14.927 2.067 2.066 2.067h14.667c1.14 0 2.066-.927 2.066-2.067V8.435l.844.455c.364.197.82.06 1.017-.304.196-.363.06-.82-.303-1.017zm-5.066 9.867H6.608v-7.72c0-.07.015-.136.02-.205l5.372-2.9 5.372 2.9c.006.07.02.136.02.205v7.72z" />
-        </svg>
-      ),
-    },
-    {
-      label: "Explorar",
-      active: false,
-      icon: (
-        <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-          <path d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.814 5.262l4.276 4.276-1.414 1.414-4.276-4.276c-1.447 1.132-3.276 1.814-5.272 1.814-4.694 0-8.5-3.806-8.5-8.5z" />
-        </svg>
-      ),
-    },
-    {
-      label: "Avisos",
-      active: false,
-      icon: (
-        <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-          <path d="M11.996 2c-4.062 0-7.49 3.021-7.999 7.051L2.866 15H1v2h3.882l.856-6.526C6.147 7.3 8.745 5 11.996 5s5.85 2.3 6.258 5.474L19.114 17H23v-2h-1.866l-1.143-5.969C19.48 5.017 16.054 2 11.996 2zM9 18c0 1.65 1.35 3 3 3s3-1.35 3-3H9z" />
-        </svg>
-      ),
-    },
-    {
-      label: "Mensagens",
-      active: false,
-      icon: (
-        <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-          <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v9c0 1.381-1.119 2.5-2.5 2.5H10.031l-4.242 4.243c-.293.293-.768.293-1.061 0-.14-.14-.22-.331-.22-.53V17H4.498c-1.381 0-2.5-1.119-2.5-2.5v-9zm2.5-.5c-.276 0-.5.224-.5.5v9c0 .276.224.5.5.5h2.5v2.379l3.038-3.038.22-.22c.14-.14.331-.22.53-.22h9.212c.276 0 .5-.224.5-.5v-9c0-.276-.224-.5-.5-.5h-15z" />
-        </svg>
-      ),
-    },
-    {
-      label: "Perfil",
-      active: false,
-      icon: (
-        <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-          <path d="M5.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C15.318 13.65 13.838 13 12 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C7.627 11.85 9.648 11 12 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H3.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46zM12 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM8 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4z" />
-        </svg>
-      ),
-    },
-  ];
-
   return (
-    <main className="grid grid-cols-[1fr_2fr_1fr] h-dvh max-w-7xl mx-auto bg-[#070714] text-slate-100 font-sans">
-      {/* ── SIDEBAR ESQUERDA ── */}
-      <aside className="flex flex-col px-4 py-3 border-r sticky top-0 h-screen overflow-y-auto"
-             style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-        {/* Logo */}
-        <div className="p-3 mb-2 flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-               style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}>
-            <HouseIcon className="w-5 h-5 fill-white" />
-          </div>
-          <span className="hidden xl:block text-lg font-extrabold tracking-tight text-slate-100">Pananbook</span>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex flex-col gap-1">
-          {navItems.map(({ label, active, icon }) => (
-            <button
-              key={label}
-              className={`flex items-center gap-4 px-4 py-3 rounded-full text-base transition-colors w-fit ${
-                active
-                  ? "font-bold text-violet-400"
-                  : "font-normal text-slate-400 hover:bg-white/5 hover:text-slate-100"
-              }`}
-            >
-              {icon}
-              <span className="hidden xl:inline">{label}</span>
-            </button>
-          ))}
-        </nav>
-
-        {/* Botão publicar */}
-        <button className="mt-4 text-white font-bold rounded-full py-3 px-6 hidden xl:block transition-all hover:opacity-85"
-                style={{ background: "linear-gradient(135deg, #6d28d9, #7c3aed)" }}>
-          Publicar
-        </button>
-        <button className="mt-4 text-white font-bold rounded-full p-3 xl:hidden w-fit transition-all hover:opacity-85"
-                style={{ background: "linear-gradient(135deg, #6d28d9, #7c3aed)" }}>
-          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
-            <path d="M19 11H13V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2z" />
-          </svg>
-        </button>
-
-        {/* Avatar do usuário */}
-        <div className="mt-auto flex items-center gap-3 p-3 rounded-full cursor-pointer hover:bg-white/5 transition-colors">
-          <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
-               style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}>
-            {userInitials}
-          </div>
-          <div className="hidden xl:block flex-1 min-w-0">
-            <p className="font-bold text-sm truncate text-slate-100">{user?.name ?? "Usuário"}</p>
-            <p className="text-slate-500 text-sm truncate">@{user?.name?.toLowerCase().replace(/\s/g, "") ?? "user"}</p>
-          </div>
-          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-slate-500 hidden xl:block">
-            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z" />
-          </svg>
-        </div>
-      </aside>
+    <main className="grid grid-cols-[auto_1fr_auto] h-dvh max-w-7xl mx-auto bg-[#070714] text-slate-100 font-sans">
+      <AppSidebar />
 
       {/* ── FEED PRINCIPAL ── */}
       <section className="overflow-y-auto" style={{ borderLeft: "1px solid rgba(255,255,255,0.07)", borderRight: "1px solid rgba(255,255,255,0.07)" }}>
