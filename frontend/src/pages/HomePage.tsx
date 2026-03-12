@@ -1,14 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import authService from "../services/auth.service";
+import authService, {
+  type AuthResponse,
+  type User,
+} from "../services/auth.service";
 import PostService from "../services/post.service";
 
+interface Like {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: null;
+  userId: string;
+  postId: string;
+}
 interface Post {
   id: string;
   content: string;
   createdAt: string;
-  likesCount?: number;
-  user?: { username: string };
+  likes?: Like[];
+  user?: { name: string };
+  userId: string;
 }
 
 const HomePage = () => {
@@ -19,13 +31,18 @@ const HomePage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isEdit, setIsEdit] = useState<Post | null>();
   const [inputEdit, setInputEdit] = useState("");
+  const [user, setUser] = useState<Partial<User>>(() => {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
+  });
 
   const handleVerifyUser = async () => {
     try {
       if (!token) {
         navigate("/login");
       } else {
-        await authService.getMe();
+        const response = await authService.getMe();
+        setUser(response);
         searchPostData();
       }
     } catch {
@@ -63,9 +80,23 @@ const HomePage = () => {
   const handleEditPost = async (id: string, content: string) => {
     try {
       await PostService.update(id, { content });
-      searchPostData();
+      await searchPostData();
       setIsEdit(null);
     } catch (error) {}
+  };
+
+  const handleLikePost = async (id: string, likes: any) => {
+    try {
+      const liked = likes.find((like: Like) => like.userId === user?.id);
+      if (liked?.id) {
+        await PostService.unlike(id);
+      } else {
+        await PostService.like(id);
+      }
+      await searchPostData();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -154,7 +185,7 @@ const HomePage = () => {
 
         {/* User avatar at bottom */}
         <div className="mt-auto flex items-center gap-3 p-3 rounded-full hover:bg-zinc-900 cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm">
             JD
           </div>
           <div className="hidden xl:block flex-1 min-w-0">
@@ -179,13 +210,13 @@ const HomePage = () => {
 
         {/* Compose area */}
         <div className="flex gap-3 p-4 border-b border-zinc-800">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500 shrink-0 flex items-center justify-center text-white font-bold text-sm">
             JD
           </div>
           <div className="flex-1">
             <textarea
               placeholder="What's happening?"
-              className="w-full bg-transparent text-xl placeholder-zinc-600 resize-none outline-none pt-2 min-h-[80px]"
+              className="w-full bg-transparent text-xl placeholder-zinc-600 resize-none outline-none pt-2 min-h-20"
               value={input}
               onChange={(e) => setInput(e.target.value)}
             />
@@ -220,13 +251,13 @@ const HomePage = () => {
             key={post.id}
             className="flex gap-3 p-4 border-b border-zinc-800 hover:bg-zinc-900/50 transition-colors cursor-pointer"
           >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
-              {post.user?.username?.[0]?.toUpperCase() ?? "U"}
+            <div className="w-10 h-10 rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500 shrink-0 flex items-center justify-center text-white font-bold text-sm">
+              {post.user?.name?.[0]?.toUpperCase() ?? "U"}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1 flex-wrap">
                 <span className="font-bold text-sm">
-                  {post.user?.username ?? "Usuário"}
+                  {post.user?.name ?? "Usuário"}
                 </span>
                 <span className="text-zinc-500 text-sm">·</span>
                 <span className="text-zinc-500 text-sm">
@@ -237,39 +268,46 @@ const HomePage = () => {
                 {post.content}
               </p>
               <div className="flex gap-6 mt-3 text-zinc-500 text-sm">
-                <button className="flex items-center gap-1.5 hover:text-pink-500 transition-colors group">
-                  <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                      <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
-                    </svg>
-                  </span>
-                  {post.likesCount ?? 0}
-                </button>
                 <button
-                  className="flex items-center gap-1.5 hover:text-red-500 transition-colors group"
-                  onClick={() => handleDeletePost(post.id)}
+                  className="flex items-center gap-1.5 hover:text-pink-500 transition-colors group"
+                  onClick={() => handleLikePost(post.id, post.likes)}
                 >
                   <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                       <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
                     </svg>
                   </span>
-                  Delete
+                  {post?.likes?.length ?? 0}
                 </button>
-                <button
-                  className="flex items-center gap-1.5 hover:text-red-500 transition-colors group"
-                  onClick={() => {
-                    setIsEdit(post);
-                    setInputEdit(post.content);
-                  }}
-                >
-                  <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                      <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
-                    </svg>
-                  </span>
-                  Editar
-                </button>
+                {post.userId === user.id && (
+                  <button
+                    className="flex items-center gap-1.5 hover:text-red-500 transition-colors group"
+                    onClick={() => handleDeletePost(post.id)}
+                  >
+                    <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                        <path d="M6 7h12v12c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2V7zm3 10h2V9H9v8zm4 0h2V9h-2v8zM15.5 4l-1-1h-5l-1 1H5v2h14V4h-3.5z" />
+                      </svg>
+                    </span>
+                    Delete
+                  </button>
+                )}
+                {post.userId === user.id && (
+                  <button
+                    className="flex items-center gap-1.5 hover:text-red-500 transition-colors group"
+                    onClick={() => {
+                      setIsEdit(post);
+                      setInputEdit(post.content);
+                    }}
+                  >
+                    <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM21.41 6.34c.38-.38.38-1 0-1.41l-2.34-2.34c-.38-.38-1-.38-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                      </svg>
+                    </span>
+                    Editar
+                  </button>
+                )}
               </div>
             </div>
           </article>
@@ -322,14 +360,14 @@ const HomePage = () => {
               handle: "@devvibes",
               followers: "31.2K",
             },
-          ].map(({ initials, from, to, name, handle, followers }) => (
+          ].map(({ initials, from, to, name, handle }) => (
             <div
               key={handle}
               className="flex items-center justify-between py-2.5"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className={`w-9 h-9 rounded-full bg-gradient-to-br ${from} ${to} flex-shrink-0 flex items-center justify-center text-white font-bold text-xs`}
+                  className={`w-9 h-9 rounded-full bg-linear-to-br ${from} ${to} shrink-0 flex items-center justify-center text-white font-bold text-xs`}
                 >
                   {initials}
                 </div>
@@ -338,7 +376,7 @@ const HomePage = () => {
                   <p className="text-zinc-500 text-xs">{handle}</p>
                 </div>
               </div>
-              <button className="ml-3 bg-white hover:bg-zinc-200 transition-colors text-black font-bold rounded-full px-4 py-1.5 text-sm flex-shrink-0">
+              <button className="ml-3 bg-white hover:bg-zinc-200 transition-colors text-black font-bold rounded-full px-4 py-1.5 text-sm shrink-0">
                 Follow
               </button>
             </div>
@@ -392,15 +430,15 @@ const HomePage = () => {
         <div className="absolute top-0 bottom-0 right-0 left-0 w-full h-full flex items-center justify-center bg-slate-400/10 z-20 ">
           <article
             key={isEdit?.id}
-            className="flex gap-3 p-4 border-b border-zinc-800 transition-colors cursor-pointer bg-zinc-900/95 p-20 rounded-3xl"
+            className="flex gap-3 border-b border-zinc-800 transition-colors cursor-pointer bg-zinc-900/95 p-20 rounded-3xl"
           >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
-              {isEdit?.user?.username?.[0]?.toUpperCase() ?? "U"}
+            <div className="w-10 h-10 rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500 shrink-0 flex items-center justify-center text-white font-bold text-sm">
+              {isEdit?.user?.name?.[0]?.toUpperCase() ?? "U"}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1 flex-wrap">
                 <span className="font-bold text-sm">
-                  {isEdit?.user?.username ?? "Usuário"}
+                  {isEdit?.user?.name ?? "Usuário"}
                 </span>
                 <span className="text-zinc-500 text-sm">·</span>
                 <span className="text-zinc-500 text-sm">
