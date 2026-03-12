@@ -17,6 +17,8 @@ const HomePage = () => {
 
   const [input, setInput] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isEdit, setIsEdit] = useState<Post | null>();
+  const [inputEdit, setInputEdit] = useState("");
 
   const handleVerifyUser = async () => {
     try {
@@ -42,16 +44,32 @@ const HomePage = () => {
     } catch (error) {}
   };
 
-  const handlePost = async () => {
+  const handleCreatePost = async () => {
     try {
       await PostService.create({ content: input });
       await searchPostData();
     } catch (error) {}
   };
 
+  const handleDeletePost = async (id: string) => {
+    try {
+      await PostService.delete(id);
+      await searchPostData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleEditPost = async (id: string, content: string) => {
+    try {
+      await PostService.update(id, { content });
+      searchPostData();
+      setIsEdit(null);
+    } catch (error) {}
+  };
+
   return (
     <main className="grid grid-cols-[1fr_2fr_1fr] h-dvh max-w-7xl mx-auto bg-black text-white font-sans">
-
       {/* ── LEFT SIDEBAR ── */}
       <aside className="flex flex-col px-4 py-3 border-r border-zinc-800 sticky top-0 h-screen overflow-y-auto">
         {/* Logo */}
@@ -143,7 +161,10 @@ const HomePage = () => {
             <p className="font-bold text-sm truncate">John Doe</p>
             <p className="text-zinc-500 text-sm truncate">@johndoe</p>
           </div>
-          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-zinc-500 hidden xl:block">
+          <svg
+            viewBox="0 0 24 24"
+            className="w-5 h-5 fill-zinc-500 hidden xl:block"
+          >
             <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z" />
           </svg>
         </div>
@@ -183,7 +204,10 @@ const HomePage = () => {
                   </svg>
                 </button>
               </div>
-              <button onClick={handlePost} className="bg-sky-500 hover:bg-sky-400 transition-colors text-white font-bold rounded-full px-5 py-2 text-sm">
+              <button
+                onClick={handleCreatePost}
+                className="bg-sky-500 hover:bg-sky-400 transition-colors text-white font-bold rounded-full px-5 py-2 text-sm"
+              >
                 Post
               </button>
             </div>
@@ -192,17 +216,26 @@ const HomePage = () => {
 
         {/* Posts da API */}
         {posts.map((post) => (
-          <article key={post.id} className="flex gap-3 p-4 border-b border-zinc-800 hover:bg-zinc-900/50 transition-colors cursor-pointer">
+          <article
+            key={post.id}
+            className="flex gap-3 p-4 border-b border-zinc-800 hover:bg-zinc-900/50 transition-colors cursor-pointer"
+          >
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
               {post.user?.username?.[0]?.toUpperCase() ?? "U"}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1 flex-wrap">
-                <span className="font-bold text-sm">{post.user?.username ?? "Usuário"}</span>
+                <span className="font-bold text-sm">
+                  {post.user?.username ?? "Usuário"}
+                </span>
                 <span className="text-zinc-500 text-sm">·</span>
-                <span className="text-zinc-500 text-sm">{new Date(post.createdAt).toLocaleDateString("pt-BR")}</span>
+                <span className="text-zinc-500 text-sm">
+                  {new Date(post.createdAt).toLocaleDateString("pt-BR")}
+                </span>
               </div>
-              <p className="mt-1 text-sm leading-relaxed text-zinc-100">{post.content}</p>
+              <p className="mt-1 text-sm leading-relaxed text-zinc-100">
+                {post.content}
+              </p>
               <div className="flex gap-6 mt-3 text-zinc-500 text-sm">
                 <button className="flex items-center gap-1.5 hover:text-pink-500 transition-colors group">
                   <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
@@ -211,6 +244,31 @@ const HomePage = () => {
                     </svg>
                   </span>
                   {post.likesCount ?? 0}
+                </button>
+                <button
+                  className="flex items-center gap-1.5 hover:text-red-500 transition-colors group"
+                  onClick={() => handleDeletePost(post.id)}
+                >
+                  <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                      <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
+                    </svg>
+                  </span>
+                  Delete
+                </button>
+                <button
+                  className="flex items-center gap-1.5 hover:text-red-500 transition-colors group"
+                  onClick={() => {
+                    setIsEdit(post);
+                    setInputEdit(post.content);
+                  }}
+                >
+                  <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                      <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
+                    </svg>
+                  </span>
+                  Editar
                 </button>
               </div>
             </div>
@@ -222,7 +280,10 @@ const HomePage = () => {
       <aside className="px-4 py-3 overflow-y-auto sticky top-0 h-screen">
         {/* Search bar */}
         <div className="relative mb-4">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-zinc-500 absolute left-3 top-1/2 -translate-y-1/2">
+          <svg
+            viewBox="0 0 24 24"
+            className="w-4 h-4 fill-zinc-500 absolute left-3 top-1/2 -translate-y-1/2"
+          >
             <path d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.814 5.262l4.276 4.276-1.414 1.414-4.276-4.276c-1.447 1.132-3.276 1.814-5.272 1.814-4.694 0-8.5-3.806-8.5-8.5z" />
           </svg>
           <input
@@ -237,13 +298,39 @@ const HomePage = () => {
         <div className="bg-zinc-900/60 rounded-2xl p-4 mb-4">
           <h2 className="text-xl font-extrabold mb-3">Who to follow</h2>
           {[
-            { initials: "TS", from: "from-teal-500", to: "to-green-500", name: "Tech Semanal", handle: "@techsemanal", followers: "12.4K" },
-            { initials: "JN", from: "from-blue-600", to: "to-cyan-500", name: "JS News Brasil", handle: "@jsnewsbrasil", followers: "8.9K" },
-            { initials: "DV", from: "from-rose-500", to: "to-orange-500", name: "Dev Vibes", handle: "@devvibes", followers: "31.2K" },
+            {
+              initials: "TS",
+              from: "from-teal-500",
+              to: "to-green-500",
+              name: "Tech Semanal",
+              handle: "@techsemanal",
+              followers: "12.4K",
+            },
+            {
+              initials: "JN",
+              from: "from-blue-600",
+              to: "to-cyan-500",
+              name: "JS News Brasil",
+              handle: "@jsnewsbrasil",
+              followers: "8.9K",
+            },
+            {
+              initials: "DV",
+              from: "from-rose-500",
+              to: "to-orange-500",
+              name: "Dev Vibes",
+              handle: "@devvibes",
+              followers: "31.2K",
+            },
           ].map(({ initials, from, to, name, handle, followers }) => (
-            <div key={handle} className="flex items-center justify-between py-2.5">
+            <div
+              key={handle}
+              className="flex items-center justify-between py-2.5"
+            >
               <div className="flex items-center gap-3 min-w-0">
-                <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${from} ${to} flex-shrink-0 flex items-center justify-center text-white font-bold text-xs`}>
+                <div
+                  className={`w-9 h-9 rounded-full bg-gradient-to-br ${from} ${to} flex-shrink-0 flex items-center justify-center text-white font-bold text-xs`}
+                >
                   {initials}
                 </div>
                 <div className="min-w-0">
@@ -256,27 +343,91 @@ const HomePage = () => {
               </button>
             </div>
           ))}
-          <button className="text-sky-500 hover:text-sky-400 text-sm mt-1">Show more</button>
+          <button className="text-sky-500 hover:text-sky-400 text-sm mt-1">
+            Show more
+          </button>
         </div>
 
         {/* Trending */}
         <div className="bg-zinc-900/60 rounded-2xl p-4">
           <h2 className="text-xl font-extrabold mb-3">Trending</h2>
           {[
-            { category: "Technology · Trending", tag: "#NestJS", posts: "5,432 posts" },
-            { category: "Desenvolvimento · Trending", tag: "#ReactJS", posts: "18.9K posts" },
-            { category: "Tech · Trending", tag: "#TypeScript", posts: "12.1K posts" },
-            { category: "Brasil · Trending", tag: "#DevBrasil", posts: "3,201 posts" },
+            {
+              category: "Technology · Trending",
+              tag: "#NestJS",
+              posts: "5,432 posts",
+            },
+            {
+              category: "Desenvolvimento · Trending",
+              tag: "#ReactJS",
+              posts: "18.9K posts",
+            },
+            {
+              category: "Tech · Trending",
+              tag: "#TypeScript",
+              posts: "12.1K posts",
+            },
+            {
+              category: "Brasil · Trending",
+              tag: "#DevBrasil",
+              posts: "3,201 posts",
+            },
           ].map(({ category, tag, posts }) => (
-            <div key={tag} className="py-2.5 hover:bg-zinc-800/50 rounded-xl px-2 -mx-2 cursor-pointer transition-colors">
+            <div
+              key={tag}
+              className="py-2.5 hover:bg-zinc-800/50 rounded-xl px-2 -mx-2 cursor-pointer transition-colors"
+            >
               <p className="text-zinc-500 text-xs">{category}</p>
               <p className="font-bold text-sm">{tag}</p>
               <p className="text-zinc-500 text-xs">{posts}</p>
             </div>
           ))}
-          <button className="text-sky-500 hover:text-sky-400 text-sm mt-1">Show more</button>
+          <button className="text-sky-500 hover:text-sky-400 text-sm mt-1">
+            Show more
+          </button>
         </div>
       </aside>
+
+      {isEdit && isEdit.id && isEdit.id.length > 2 && (
+        <div className="absolute top-0 bottom-0 right-0 left-0 w-full h-full flex items-center justify-center bg-slate-400/10 z-20 ">
+          <article
+            key={isEdit?.id}
+            className="flex gap-3 p-4 border-b border-zinc-800 transition-colors cursor-pointer bg-zinc-900/95 p-20 rounded-3xl"
+          >
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
+              {isEdit?.user?.username?.[0]?.toUpperCase() ?? "U"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1 flex-wrap">
+                <span className="font-bold text-sm">
+                  {isEdit?.user?.username ?? "Usuário"}
+                </span>
+                <span className="text-zinc-500 text-sm">·</span>
+                <span className="text-zinc-500 text-sm">
+                  {/* {new Date(isEdit?.createdAt).toLocaleDateString("pt-BR")} */}
+                </span>
+              </div>
+              <input
+                type="text"
+                value={inputEdit}
+                onChange={({ target: { value } }) => setInputEdit(value)}
+                className="bg-black"
+              />
+            </div>
+            <button
+              className="flex items-center gap-1.5 hover:text-green-500 transition-colors group"
+              onClick={() => isEdit?.id && handleEditPost(isEdit.id, inputEdit)}
+            >
+              <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                  <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
+                </svg>
+              </span>
+              Salvar
+            </button>
+          </article>
+        </div>
+      )}
     </main>
   );
 };

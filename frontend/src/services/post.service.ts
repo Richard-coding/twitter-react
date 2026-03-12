@@ -13,6 +13,12 @@ export const PostService = {
     const response = await api.get<any>("/posts");
     return response.data;
   },
+  async delete(id: string): Promise<any> {
+    await api.delete<any>(`/posts/${id}`);
+  },
+  async update(id: string, data: { content: string }): Promise<any> {
+    await api.patch<any>(`/posts/${id}`, data);
+  },
 };
 
 export default PostService;
