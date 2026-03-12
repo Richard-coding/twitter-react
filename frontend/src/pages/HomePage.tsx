@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import authService, {
   type AuthResponse,
   type User,
@@ -58,22 +59,28 @@ const HomePage = () => {
     try {
       const response = await PostService.findAll();
       setPosts(response);
+      toast.success("Publicações atualizadas");
     } catch (error) {}
   };
 
   const handleCreatePost = async () => {
     try {
+      toast.success("Publicado com sucesso", { id: "post" });
       await PostService.create({ content: input });
       await searchPostData();
-    } catch (error) {}
+      setInput("");
+    } catch (error) {
+      toast.error("Algo deu errado na criação");
+    }
   };
 
   const handleDeletePost = async (id: string) => {
     try {
       await PostService.delete(id);
       await searchPostData();
+      toast.success("Publicação deletada com sucesso");
     } catch (error) {
-      console.log(error);
+      toast.error("Não foi possivel deletar esse post");
     }
   };
 
@@ -82,7 +89,9 @@ const HomePage = () => {
       await PostService.update(id, { content });
       await searchPostData();
       setIsEdit(null);
-    } catch (error) {}
+    } catch (error) {
+      toast.error("Algo de errado aconteceu");
+    }
   };
 
   const handleLikePost = async (id: string, likes: any) => {
@@ -95,7 +104,7 @@ const HomePage = () => {
       }
       await searchPostData();
     } catch (error) {
-      console.log(error);
+      toast.error("Algo de errado aconteceu");
     }
   };
 
