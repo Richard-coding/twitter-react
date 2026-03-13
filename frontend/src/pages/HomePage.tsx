@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import authService, {
-  type User,
-} from "../services/auth.service";
+import authService, { type User } from "../services/auth.service";
 import PostService from "../services/post.service";
 import AppSidebar from "../components/AppSidebar";
 import PostComments from "../components/PostComments";
@@ -35,12 +33,13 @@ const HomePage = () => {
   const [inputEdit, setInputEdit] = useState("");
   const [openComments, setOpenComments] = useState<Set<string>>(new Set());
 
-  const toggleComments = (postId: string) =>
+  const toggleComments = (postId: string) => {
     setOpenComments((prev) => {
       const next = new Set(prev);
       next.has(postId) ? next.delete(postId) : next.add(postId);
       return next;
     });
+  };
   const [user, setUser] = useState<Partial<User>>(() => {
     const userStr = localStorage.getItem("user");
     return userStr ? JSON.parse(userStr) : null;
@@ -118,7 +117,12 @@ const HomePage = () => {
   };
 
   const userInitials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
     : "?";
 
   return (
@@ -126,17 +130,33 @@ const HomePage = () => {
       <AppSidebar />
 
       {/* ── FEED PRINCIPAL ── */}
-      <section className="overflow-y-auto" style={{ borderLeft: "1px solid rgba(255,255,255,0.07)", borderRight: "1px solid rgba(255,255,255,0.07)" }}>
+      <section
+        className="overflow-y-auto"
+        style={{
+          borderLeft: "1px solid rgba(255,255,255,0.07)",
+          borderRight: "1px solid rgba(255,255,255,0.07)",
+        }}
+      >
         {/* Header */}
-        <div className="sticky top-0 z-10 backdrop-blur-sm px-4 py-3"
-             style={{ background: "rgba(7,7,20,0.8)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div
+          className="sticky top-0 z-10 backdrop-blur-sm px-4 py-3"
+          style={{
+            background: "rgba(7,7,20,0.8)",
+            borderBottom: "1px solid rgba(255,255,255,0.07)",
+          }}
+        >
           <h1 className="text-xl font-bold text-slate-100">Início</h1>
         </div>
 
         {/* Área de composição */}
-        <div className="flex gap-3 p-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
-               style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}>
+        <div
+          className="flex gap-3 p-4"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+        >
+          <div
+            className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
+            style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}
+          >
             {userInitials}
           </div>
           <div className="flex-1">
@@ -146,7 +166,10 @@ const HomePage = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
             />
-            <div className="flex items-center justify-between mt-2 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+            <div
+              className="flex items-center justify-between mt-2 pt-3"
+              style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+            >
               <div className="flex gap-2 text-violet-500">
                 <button className="p-2 rounded-full hover:bg-violet-500/10 transition-colors">
                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
@@ -162,7 +185,9 @@ const HomePage = () => {
               <button
                 onClick={handleCreatePost}
                 className="text-white font-bold rounded-full px-5 py-2 text-sm transition-all hover:opacity-85"
-                style={{ background: "linear-gradient(135deg, #6d28d9, #7c3aed)" }}
+                style={{
+                  background: "linear-gradient(135deg, #6d28d9, #7c3aed)",
+                }}
               >
                 Publicar
               </button>
@@ -177,17 +202,27 @@ const HomePage = () => {
             className="flex gap-3 p-4 cursor-pointer transition-colors hover:bg-white/2"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
           >
-            <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
-                 style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}>
+            <div
+              className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
+              style={{
+                background: "linear-gradient(135deg, #6d28d9, #a21caf)",
+              }}
+            >
               {post.user?.name?.[0]?.toUpperCase() ?? "U"}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1 flex-wrap">
-                <span className="font-bold text-sm text-slate-100">{post.user?.name ?? "Usuário"}</span>
+                <span className="font-bold text-sm text-slate-100">
+                  {post.user?.name ?? "Usuário"}
+                </span>
                 <span className="text-slate-600 text-sm">·</span>
-                <span className="text-slate-500 text-sm">{new Date(post.createdAt).toLocaleDateString("pt-BR")}</span>
+                <span className="text-slate-500 text-sm">
+                  {new Date(post.createdAt).toLocaleDateString("pt-BR")}
+                </span>
               </div>
-              <p className="mt-1 text-sm leading-relaxed text-slate-300">{post.content}</p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                {post.content}
+              </p>
               <div className="flex gap-6 mt-3 text-sm text-slate-500">
                 {/* Like */}
                 <button
@@ -221,7 +256,10 @@ const HomePage = () => {
                 {post.userId === user.id && (
                   <button
                     className="flex items-center gap-1.5 transition-colors group hover:text-violet-400"
-                    onClick={() => { setIsEdit(post); setInputEdit(post.content); }}
+                    onClick={() => {
+                      setIsEdit(post);
+                      setInputEdit(post.content);
+                    }}
                   >
                     <span className="p-1.5 rounded-full group-hover:bg-violet-500/10 transition-colors">
                       <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -246,7 +284,9 @@ const HomePage = () => {
                 </button>
               </div>
 
-              {openComments.has(post.id) && <PostComments postId={post.id} />}
+              {openComments.has(post.id) && (
+                <PostComments postId={post?.id} userId={user?.id || ""} />
+              )}
             </div>
           </article>
         ))}
@@ -256,33 +296,61 @@ const HomePage = () => {
       <aside className="px-4 py-3 overflow-y-auto sticky top-0 h-screen">
         {/* Busca */}
         <div className="relative mb-4">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-slate-500 absolute left-3 top-1/2 -translate-y-1/2">
+          <svg
+            viewBox="0 0 24 24"
+            className="w-4 h-4 fill-slate-500 absolute left-3 top-1/2 -translate-y-1/2"
+          >
             <path d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.814 5.262l4.276 4.276-1.414 1.414-4.276-4.276c-1.447 1.132-3.276 1.814-5.272 1.814-4.694 0-8.5-3.806-8.5-8.5z" />
           </svg>
           <input
             type="text"
             placeholder="Buscar"
             className="w-full rounded-full py-2.5 pl-10 pr-4 text-sm outline-none placeholder-slate-500 text-slate-100 transition-all"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.07)",
+            }}
             readOnly
           />
         </div>
 
         {/* Moradores da Casa */}
-        <div className="rounded-2xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          <h2 className="text-base font-bold mb-3 text-slate-100">Moradores da Casa</h2>
+        <div
+          className="rounded-2xl p-4 mb-4"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.07)",
+          }}
+        >
+          <h2 className="text-base font-bold mb-3 text-slate-100">
+            Moradores da Casa
+          </h2>
           {[
             { initials: "AN", from: "#6d28d9", to: "#a21caf", name: "Ana" },
-            { initials: "BE", from: "#0369a1", to: "#0891b2", name: "Bernardo" },
+            {
+              initials: "BE",
+              from: "#0369a1",
+              to: "#0891b2",
+              name: "Bernardo",
+            },
             { initials: "CA", from: "#065f46", to: "#059669", name: "Carlos" },
             { initials: "DE", from: "#92400e", to: "#d97706", name: "Débora" },
             { initials: "ED", from: "#7f1d1d", to: "#dc2626", name: "Eduardo" },
-            { initials: "FE", from: "#1e3a5f", to: "#3b82f6", name: "Fernanda" },
+            {
+              initials: "FE",
+              from: "#1e3a5f",
+              to: "#3b82f6",
+              name: "Fernanda",
+            },
             { initials: "GU", from: "#3d1d7f", to: "#8b5cf6", name: "Gustavo" },
           ].map(({ initials, from, to, name }) => (
             <div key={name} className="flex items-center gap-3 py-2">
-              <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-xs"
-                   style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}>
+              <div
+                className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-xs"
+                style={{
+                  background: `linear-gradient(135deg, ${from}, ${to})`,
+                }}
+              >
                 {initials}
               </div>
               <p className="text-sm font-medium text-slate-300">{name}</p>
@@ -291,11 +359,24 @@ const HomePage = () => {
         </div>
 
         {/* Atividade Recente */}
-        <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          <h2 className="text-base font-bold mb-3 text-slate-100">Atividade Recente</h2>
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.07)",
+          }}
+        >
+          <h2 className="text-base font-bold mb-3 text-slate-100">
+            Atividade Recente
+          </h2>
           {[
             { label: "Posts hoje", value: posts.length.toString() },
-            { label: "Curtidas no feed", value: posts.reduce((acc, p) => acc + (p.likes?.length ?? 0), 0).toString() },
+            {
+              label: "Curtidas no feed",
+              value: posts
+                .reduce((acc, p) => acc + (p.likes?.length ?? 0), 0)
+                .toString(),
+            },
             { label: "Moradores ativos", value: "7" },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between items-center py-2">
@@ -308,23 +389,44 @@ const HomePage = () => {
 
       {/* ── Modal de edição ── */}
       {isEdit && isEdit.id && isEdit.id.length > 2 && (
-        <div className="absolute inset-0 flex items-center justify-center z-20"
-             style={{ background: "rgba(7,7,20,0.75)", backdropFilter: "blur(8px)" }}>
-          <div className="w-full max-w-lg rounded-3xl p-8 shadow-2xl"
-               style={{ background: "rgba(20,10,40,0.98)", border: "1px solid rgba(124,58,237,0.3)" }}>
-            <h2 className="text-lg font-bold text-slate-100 mb-4">Editar publicação</h2>
+        <div
+          className="absolute inset-0 flex items-center justify-center z-20"
+          style={{
+            background: "rgba(7,7,20,0.75)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <div
+            className="w-full max-w-lg rounded-3xl p-8 shadow-2xl"
+            style={{
+              background: "rgba(20,10,40,0.98)",
+              border: "1px solid rgba(124,58,237,0.3)",
+            }}
+          >
+            <h2 className="text-lg font-bold text-slate-100 mb-4">
+              Editar publicação
+            </h2>
             <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
-                   style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}>
+              <div
+                className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
+                style={{
+                  background: "linear-gradient(135deg, #6d28d9, #a21caf)",
+                }}
+              >
                 {isEdit?.user?.name?.[0]?.toUpperCase() ?? "U"}
               </div>
               <div className="flex-1">
-                <p className="font-bold text-sm text-slate-100 mb-2">{isEdit?.user?.name ?? "Usuário"}</p>
+                <p className="font-bold text-sm text-slate-100 mb-2">
+                  {isEdit?.user?.name ?? "Usuário"}
+                </p>
                 <textarea
                   value={inputEdit}
                   onChange={({ target: { value } }) => setInputEdit(value)}
                   className="w-full rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 outline-none resize-none min-h-24 transition-all"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
                 />
               </div>
             </div>
@@ -337,8 +439,12 @@ const HomePage = () => {
               </button>
               <button
                 className="px-5 py-2.5 rounded-full text-sm font-bold text-white transition-all hover:opacity-85"
-                style={{ background: "linear-gradient(135deg, #6d28d9, #7c3aed)" }}
-                onClick={() => isEdit?.id && handleEditPost(isEdit.id, inputEdit)}
+                style={{
+                  background: "linear-gradient(135deg, #6d28d9, #7c3aed)",
+                }}
+                onClick={() =>
+                  isEdit?.id && handleEditPost(isEdit.id, inputEdit)
+                }
               >
                 Salvar
               </button>
