@@ -16,6 +16,12 @@ export const CommentService = {
   async delete(id: string, commentId: string): Promise<any> {
     await api.delete<any>(`/posts/${id}/comments/${commentId}`);
   },
+  async like(id: string, commentId: string): Promise<any> {
+    await api.post<any>(`/posts/${id}/comments/${commentId}/like`);
+  },
+  async unlike(id: string, commentId: string): Promise<any> {
+    await api.delete<any>(`/posts/${id}/comments/${commentId}/like`);
+  },
 };
 
 export default CommentService;

@@ -6,7 +6,7 @@ import PostService from "../services/post.service";
 import AppSidebar from "../components/AppSidebar";
 import PostComments from "../components/PostComments";
 
-interface Like {
+ interface Like {
   id: number;
   createdAt: string;
   updatedAt: string;
@@ -226,7 +226,11 @@ const HomePage = () => {
               <div className="flex gap-6 mt-3 text-sm text-slate-500">
                 {/* Like */}
                 <button
-                  className="flex items-center gap-1.5 transition-colors group hover:text-pink-400"
+                  className={`flex items-center gap-1.5 transition-colors group hover:text-pink-400 ${
+                    post?.likes?.length ?? 0
+                      ? "text-pink-400"
+                      : "text-slate-600 hover:text-pink-400"
+                  }`}
                   onClick={() => handleLikePost(post.id, post.likes)}
                 >
                   <span className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">

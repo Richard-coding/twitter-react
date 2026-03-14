@@ -48,7 +48,7 @@ export default function LoginPage() {
       }}
     >
       <div
-        className="flex w-full max-w-3xl min-h-[500px] rounded-3xl overflow-hidden"
+        className="flex w-full max-w-3xl min-h-125 rounded-3xl overflow-hidden"
         style={{
           background: "rgba(255,255,255,0.04)",
           border: "1px solid rgba(255,255,255,0.08)",
@@ -58,7 +58,7 @@ export default function LoginPage() {
       >
         {/* ── Painel decorativo (desktop) ── */}
         <div
-          className="hidden sm:flex flex-col justify-end p-10 w-72 flex-shrink-0 relative overflow-hidden"
+          className="hidden sm:flex flex-col justify-end p-10 w-72 shrink-0 relative overflow-hidden"
           style={{
             background:
               "linear-gradient(145deg, #4c1d95 0%, #6d28d9 40%, #a21caf 100%)",
