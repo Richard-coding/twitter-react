@@ -40,7 +40,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
     try {
       await CommentService.create(postId, { content: input });
       await handleSearchComment(postId);
-      setInput("")
+      setInput("");
     } catch (error) {
       console.log(error);
     }
@@ -58,9 +58,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
   };
 
   const handleLikeComment = async (comment: Comment) => {
-    const liked = comment.likes.find(
-      (like: any) => like.userId === userId,
-    );
+    const liked = comment.likes.find((like: any) => like.userId === userId);
     try {
       if (liked) {
         await CommentService.unlike(postId, comment.id);
@@ -71,6 +69,11 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
       console.log(error);
     }
     await handleSearchComment(postId);
+  };
+
+  const handleReplyComment = (user: any) => {
+    const reply = "@" + user.name;
+    setInput(reply);
   };
 
   useEffect(() => {
@@ -156,7 +159,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
                 <button
                   onClick={() => handleLikeComment(comment)}
                   className={`flex items-center gap-1 text-xs font-semibold transition-colors ${
-                    comment?.likes?.length > 0 
+                    comment?.likes?.length > 0
                       ? "text-pink-400"
                       : "text-slate-600 hover:text-pink-400"
                   }`}
@@ -167,7 +170,10 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
                   {comment?.likes.length ?? 0}
                 </button>
                 {userId !== comment.user.id && (
-                  <button className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-violet-400 transition-colors">
+                  <button
+                    className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-violet-400 transition-colors"
+                    onClick={() => handleReplyComment(comment.user)}
+                  >
                     <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
                       <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
                     </svg>
