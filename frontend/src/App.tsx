@@ -7,6 +7,7 @@ import ShoppingPage from "./pages/ShoppingPage";
 import MoviesPage from "./pages/MoviesPage";
 import EventsPage from "./pages/EventsPage";
 import ChoresPage from "./pages/ChoresPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/movies"   element={<MoviesPage />} />
         <Route path="/events"   element={<EventsPage />} />
         <Route path="/chores"   element={<ChoresPage />} />
+        <Route path="/profile/:id" element={<ProfilePage />} />
         <Route path="*"         element={<Navigate to="/login" replace />} />
       </Routes>
 

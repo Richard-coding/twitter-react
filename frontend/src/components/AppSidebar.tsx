@@ -121,7 +121,10 @@ export default function AppSidebar() {
       </button>
 
       {/* Avatar */}
-      <div className="mt-auto flex items-center gap-3 p-3 rounded-full cursor-pointer hover:bg-white/5 transition-colors">
+      <div
+        className="mt-auto flex items-center gap-3 p-3 rounded-full cursor-pointer hover:bg-white/5 transition-colors"
+        onClick={() => navigate("/profile/me")}
+      >
         <div
           className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
           style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}

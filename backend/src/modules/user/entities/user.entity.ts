@@ -13,6 +13,12 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 255, select: false, nullable: true })
   password: string | null;
 
+  @Column({ type: 'varchar', length: 500, nullable: true, default: null })
+  bio: string | null;
+
+  @Column({ name: 'avatar_url', type: 'varchar', length: 1000, nullable: true, default: null })
+  avatarUrl: string | null;
+
   @Column({
     type: 'enum',
     enum: UserRole,

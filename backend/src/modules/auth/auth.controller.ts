@@ -39,7 +39,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async updateMe(
     @CurrentUser('id') userId: string,
-    @Body() dto: { name?: string },
+    @Body() dto: { name?: string; bio?: string; avatarUrl?: string },
   ): Promise<any> {
     return this.authService.updateProfile(userId, dto);
   }

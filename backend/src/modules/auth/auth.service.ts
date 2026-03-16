@@ -98,10 +98,15 @@ export class AuthService {
     return this.sanitizeUser(user);
   }
 
-  async updateProfile(userId: string, data: { name?: string }): Promise<Partial<User>> {
+  async updateProfile(
+    userId: string,
+    data: { name?: string; bio?: string; avatarUrl?: string },
+  ): Promise<Partial<User>> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
     if (data.name) user.name = data.name.trim();
+    if (data.bio !== undefined) user.bio = data.bio.trim() || null;
+    if (data.avatarUrl !== undefined) user.avatarUrl = data.avatarUrl || null;
     const saved = await this.userRepository.save(user);
     return this.sanitizeUser(saved);
   }

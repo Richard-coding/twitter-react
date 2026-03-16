@@ -15,13 +15,21 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('users')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
   findAll() {
     return this.userService.findAll();
+  }
+
+  @Get(':id/profile')
+  getProfile(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') currentUserId: string,
+  ) {
+    return this.userService.getProfile(id, currentUserId);
   }
 
   @Get(':id')

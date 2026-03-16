@@ -3,12 +3,33 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Post } from '../post/entities/post.entity';
+import { Follow } from '../follow/entities/follow.entity';
+
+export interface PublicProfile {
+  id: string;
+  name: string;
+  email: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  createdAt: Date;
+  stats: {
+    postsCount: number;
+    followersCount: number;
+    followingCount: number;
+  };
+  isFollowing: boolean;
+}
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Post)
+    private readonly postRepository: Repository<Post>,
+    @InjectRepository(Follow)
+    private readonly followRepository: Repository<Follow>,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -17,19 +38,35 @@ export class UserService {
 
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
+    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
     return user;
+  }
+
+  async getProfile(targetUserId: string, currentUserId: string): Promise<PublicProfile> {
+    const user = await this.userRepository.findOne({ where: { id: targetUserId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const [postsCount, followersCount, followingCount, followRecord] = await Promise.all([
+      this.postRepository.count({ where: { userId: targetUserId } }),
+      this.followRepository.count({ where: { followingId: targetUserId } }),
+      this.followRepository.count({ where: { followerId: targetUserId } }),
+      this.followRepository.findOne({
+        where: { followerId: currentUserId, followingId: targetUserId },
+      }),
+    ]);
+
+    const { password, ...safeUser } = user as any;
+
+    return {
+      ...safeUser,
+      stats: { postsCount, followersCount, followingCount },
+      isFollowing: !!followRecord,
+    };
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
-
     Object.assign(user, updateUserDto);
-
     return this.userRepository.save(user);
   }
 
@@ -38,5 +75,4 @@ export class UserService {
     user.isActive = false;
     await this.userRepository.save(user);
   }
-
 }
