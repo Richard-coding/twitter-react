@@ -4,18 +4,14 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3000"
-    },
-    {
-      "key": "token",
-      "value": ""
-    },
-    {
-      "key": "postId",
-      "value": ""
-    }
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" },
+    { "key": "postId", "value": "" },
+    { "key": "commentId", "value": "" },
+    { "key": "movieId", "value": "" },
+    { "key": "eventId", "value": "" },
+    { "key": "choreId", "value": "" },
+    { "key": "shoppingItemId", "value": "" }
   ],
   "item": [
     {
@@ -39,9 +35,7 @@
           ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
@@ -71,9 +65,7 @@
           ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
@@ -89,9 +81,7 @@
           "name": "Get Me",
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/auth/me",
               "host": ["{{baseUrl}}"],
@@ -109,7 +99,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"John Updated\"\n}"
+              "raw": "{\n  \"name\": \"John Updated\",\n  \"bio\": \"My bio\",\n  \"avatarUrl\": \"https://example.com/avatar.jpg\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/me",
@@ -146,9 +136,7 @@
           "name": "List Users",
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users",
               "host": ["{{baseUrl}}"],
@@ -157,19 +145,28 @@
           }
         },
         {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id", "profile"],
+              "variable": [{ "key": "id", "value": "USER_ID_HERE" }]
+            }
+          }
+        },
+        {
           "name": "Get User by ID",
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users/:id",
               "host": ["{{baseUrl}}"],
               "path": ["users", ":id"],
-              "variable": [
-                { "key": "id", "value": "USER_ID_HERE" }
-              ]
+              "variable": [{ "key": "id", "value": "USER_ID_HERE" }]
             }
           }
         },
@@ -189,9 +186,7 @@
               "raw": "{{baseUrl}}/users/:id",
               "host": ["{{baseUrl}}"],
               "path": ["users", ":id"],
-              "variable": [
-                { "key": "id", "value": "USER_ID_HERE" }
-              ]
+              "variable": [{ "key": "id", "value": "USER_ID_HERE" }]
             }
           }
         },
@@ -199,16 +194,12 @@
           "name": "Delete User",
           "request": {
             "method": "DELETE",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users/:id",
               "host": ["{{baseUrl}}"],
               "path": ["users", ":id"],
-              "variable": [
-                { "key": "id", "value": "USER_ID_HERE" }
-              ]
+              "variable": [{ "key": "id", "value": "USER_ID_HERE" }]
             }
           }
         }
@@ -241,7 +232,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"Hello, mini Twitter!\"\n}"
+              "raw": "{\n  \"content\": \"Hello, world!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/posts",
@@ -254,9 +245,7 @@
           "name": "Feed (All Posts)",
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/posts",
               "host": ["{{baseUrl}}"],
@@ -268,16 +257,32 @@
           "name": "Posts by User",
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/posts/user/:userId",
               "host": ["{{baseUrl}}"],
               "path": ["posts", "user", ":userId"],
-              "variable": [
-                { "key": "userId", "value": "USER_ID_HERE" }
-              ]
+              "variable": [{ "key": "userId", "value": "USER_ID_HERE" }]
+            }
+          }
+        },
+        {
+          "name": "Update Post",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated content\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":id"],
+              "variable": [{ "key": "id", "value": "{{postId}}" }]
             }
           }
         },
@@ -285,16 +290,12 @@
           "name": "Delete Post",
           "request": {
             "method": "DELETE",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/posts/:id",
               "host": ["{{baseUrl}}"],
               "path": ["posts", ":id"],
-              "variable": [
-                { "key": "id", "value": "{{postId}}" }
-              ]
+              "variable": [{ "key": "id", "value": "{{postId}}" }]
             }
           }
         },
@@ -302,16 +303,12 @@
           "name": "Like Post",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/posts/:id/like",
               "host": ["{{baseUrl}}"],
               "path": ["posts", ":id", "like"],
-              "variable": [
-                { "key": "id", "value": "{{postId}}" }
-              ]
+              "variable": [{ "key": "id", "value": "{{postId}}" }]
             }
           }
         },
@@ -319,15 +316,167 @@
           "name": "Unlike Post",
           "request": {
             "method": "DELETE",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/posts/:id/like",
               "host": ["{{baseUrl}}"],
               "path": ["posts", ":id", "like"],
+              "variable": [{ "key": "id", "value": "{{postId}}" }]
+            }
+          }
+        },
+        {
+          "name": "React to Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"HEART\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/:id/react",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":id", "react"],
+              "variable": [{ "key": "id", "value": "{{postId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Reaction from Post",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts/:id/react",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":id", "react"],
+              "variable": [{ "key": "id", "value": "{{postId}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "List Comments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts/:postId/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":postId", "comments"],
+              "variable": [{ "key": "postId", "value": "{{postId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Create Comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "  pm.collectionVariables.set('commentId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Great post!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/:postId/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":postId", "comments"],
+              "variable": [{ "key": "postId", "value": "{{postId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Update Comment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated comment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/:postId/comments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":postId", "comments", ":id"],
               "variable": [
-                { "key": "id", "value": "{{postId}}" }
+                { "key": "postId", "value": "{{postId}}" },
+                { "key": "id", "value": "{{commentId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts/:postId/comments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":postId", "comments", ":id"],
+              "variable": [
+                { "key": "postId", "value": "{{postId}}" },
+                { "key": "id", "value": "{{commentId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Like Comment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts/:postId/comments/:id/like",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":postId", "comments", ":id", "like"],
+              "variable": [
+                { "key": "postId", "value": "{{postId}}" },
+                { "key": "id", "value": "{{commentId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Unlike Comment",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts/:postId/comments/:id/like",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":postId", "comments", ":id", "like"],
+              "variable": [
+                { "key": "postId", "value": "{{postId}}" },
+                { "key": "id", "value": "{{commentId}}" }
               ]
             }
           }
@@ -341,16 +490,12 @@
           "name": "Follow User",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users/:id/follow",
               "host": ["{{baseUrl}}"],
               "path": ["users", ":id", "follow"],
-              "variable": [
-                { "key": "id", "value": "USER_ID_HERE" }
-              ]
+              "variable": [{ "key": "id", "value": "USER_ID_HERE" }]
             }
           }
         },
@@ -358,16 +503,12 @@
           "name": "Unfollow User",
           "request": {
             "method": "DELETE",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users/:id/follow",
               "host": ["{{baseUrl}}"],
               "path": ["users", ":id", "follow"],
-              "variable": [
-                { "key": "id", "value": "USER_ID_HERE" }
-              ]
+              "variable": [{ "key": "id", "value": "USER_ID_HERE" }]
             }
           }
         },
@@ -375,16 +516,12 @@
           "name": "Get Followers",
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users/:id/followers",
               "host": ["{{baseUrl}}"],
               "path": ["users", ":id", "followers"],
-              "variable": [
-                { "key": "id", "value": "USER_ID_HERE" }
-              ]
+              "variable": [{ "key": "id", "value": "USER_ID_HERE" }]
             }
           }
         },
@@ -392,16 +529,662 @@
           "name": "Get Following",
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users/:id/following",
               "host": ["{{baseUrl}}"],
               "path": ["users", ":id", "following"],
+              "variable": [{ "key": "id", "value": "USER_ID_HERE" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shopping",
+      "item": [
+        {
+          "name": "Get Current List",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/shopping/current",
+              "host": ["{{baseUrl}}"],
+              "path": ["shopping", "current"]
+            }
+          }
+        },
+        {
+          "name": "Get List by Month",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/shopping/:year/:month",
+              "host": ["{{baseUrl}}"],
+              "path": ["shopping", ":year", ":month"],
               "variable": [
-                { "key": "id", "value": "USER_ID_HERE" }
+                { "key": "year", "value": "2026" },
+                { "key": "month", "value": "3" }
               ]
+            }
+          }
+        },
+        {
+          "name": "Add Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "  pm.collectionVariables.set('shoppingItemId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Milk\",\n  \"quantity\": \"2L\",\n  \"category\": \"Dairy\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shopping/current/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["shopping", "current", "items"]
+            }
+          }
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Milk\",\n  \"quantity\": \"1L\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shopping/items/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shopping", "items", ":id"],
+              "variable": [{ "key": "id", "value": "{{shoppingItemId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Mark as Bought",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/shopping/items/:id/buy",
+              "host": ["{{baseUrl}}"],
+              "path": ["shopping", "items", ":id", "buy"],
+              "variable": [{ "key": "id", "value": "{{shoppingItemId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Uncheck Item",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/shopping/items/:id/uncheck",
+              "host": ["{{baseUrl}}"],
+              "path": ["shopping", "items", ":id", "uncheck"],
+              "variable": [{ "key": "id", "value": "{{shoppingItemId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/shopping/items/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["shopping", "items", ":id"],
+              "variable": [{ "key": "id", "value": "{{shoppingItemId}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "List Movies",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/movies",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies"]
+            }
+          }
+        },
+        {
+          "name": "List Watched Movies",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/movies/watched",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", "watched"]
+            }
+          }
+        },
+        {
+          "name": "Get Movie",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id"],
+              "variable": [{ "key": "id", "value": "{{movieId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Create Movie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "  pm.collectionVariables.set('movieId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Inception\",\n  \"description\": \"A mind-bending thriller\",\n  \"year\": 2010,\n  \"genre\": \"Sci-Fi\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/movies",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies"]
+            }
+          }
+        },
+        {
+          "name": "Update Movie",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id"],
+              "variable": [{ "key": "id", "value": "{{movieId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Movie",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id"],
+              "variable": [{ "key": "id", "value": "{{movieId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Vote for Movie",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id/vote",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id", "vote"],
+              "variable": [{ "key": "id", "value": "{{movieId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Vote from Movie",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id/vote",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id", "vote"],
+              "variable": [{ "key": "id", "value": "{{movieId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Mark as Watched",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id/watch",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id", "watch"],
+              "variable": [{ "key": "id", "value": "{{movieId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Create Rating",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 5,\n  \"comment\": \"Amazing movie!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id/ratings",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id", "ratings"],
+              "variable": [{ "key": "id", "value": "{{movieId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Update Rating",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 4,\n  \"comment\": \"Still great\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id/ratings/:ratingId",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id", "ratings", ":ratingId"],
+              "variable": [
+                { "key": "id", "value": "{{movieId}}" },
+                { "key": "ratingId", "value": "RATING_ID_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Rating",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/movies/:id/ratings/:ratingId",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id", "ratings", ":ratingId"],
+              "variable": [
+                { "key": "id", "value": "{{movieId}}" },
+                { "key": "ratingId", "value": "RATING_ID_HERE" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "List Upcoming Events",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            }
+          }
+        },
+        {
+          "name": "List Past Events",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/events/past",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "past"]
+            }
+          }
+        },
+        {
+          "name": "Get Event",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", ":id"],
+              "variable": [{ "key": "id", "value": "{{eventId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Create Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "  pm.collectionVariables.set('eventId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"House Party\",\n  \"description\": \"End of month celebration\",\n  \"startsAt\": \"2026-03-28T20:00:00.000Z\",\n  \"endsAt\": \"2026-03-29T02:00:00.000Z\",\n  \"location\": \"Living room\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            }
+          }
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location\": \"Backyard\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", ":id"],
+              "variable": [{ "key": "id", "value": "{{eventId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", ":id"],
+              "variable": [{ "key": "id", "value": "{{eventId}}" }]
+            }
+          }
+        },
+        {
+          "name": "RSVP to Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"GOING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/:id/rsvp",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", ":id", "rsvp"],
+              "variable": [{ "key": "id", "value": "{{eventId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Remove RSVP",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/events/:id/rsvp",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", ":id", "rsvp"],
+              "variable": [{ "key": "id", "value": "{{eventId}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chores",
+      "item": [
+        {
+          "name": "List Chores",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/chores",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores"]
+            }
+          }
+        },
+        {
+          "name": "Create Chore",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "  pm.collectionVariables.set('choreId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Vacuum living room\",\n  \"description\": \"Use the big vacuum\",\n  \"frequency\": \"WEEKLY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chores",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores"]
+            }
+          }
+        },
+        {
+          "name": "Update Chore",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"frequency\": \"BIWEEKLY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chores/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores", ":id"],
+              "variable": [{ "key": "id", "value": "{{choreId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Chore",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/chores/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores", ":id"],
+              "variable": [{ "key": "id", "value": "{{choreId}}" }]
+            }
+          }
+        },
+        {
+          "name": "List Assignments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/chores/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores", "assignments"],
+              "query": [
+                { "key": "userId", "value": "", "disabled": true },
+                { "key": "pending", "value": "true", "disabled": true },
+                { "key": "dueBefore", "value": "2026-04-01", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"choreId\": \"{{choreId}}\",\n  \"assignedToId\": \"USER_ID_HERE\",\n  \"dueDate\": \"2026-03-20\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chores/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores", "assignments"]
+            }
+          }
+        },
+        {
+          "name": "Update Assignment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dueDate\": \"2026-03-25\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chores/assignments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores", "assignments", ":id"],
+              "variable": [{ "key": "id", "value": "ASSIGNMENT_ID_HERE" }]
+            }
+          }
+        },
+        {
+          "name": "Complete Assignment",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/chores/assignments/:id/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores", "assignments", ":id", "complete"],
+              "variable": [{ "key": "id", "value": "ASSIGNMENT_ID_HERE" }]
+            }
+          }
+        },
+        {
+          "name": "Uncomplete Assignment",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/chores/assignments/:id/uncomplete",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores", "assignments", ":id", "uncomplete"],
+              "variable": [{ "key": "id", "value": "ASSIGNMENT_ID_HERE" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Assignment",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/chores/assignments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["chores", "assignments", ":id"],
+              "variable": [{ "key": "id", "value": "ASSIGNMENT_ID_HERE" }]
             }
           }
         }
