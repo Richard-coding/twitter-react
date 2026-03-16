@@ -2,6 +2,7 @@ import api from "./api";
 
 interface IUserRegister {
   name: string;
+  username: string;
   email: string;
   password: string;
 }
@@ -21,6 +22,7 @@ export interface User {
   role: string;
   isActive: boolean;
   lastLoginAt: string;
+  username: string;
 }
 
 export interface AuthResponse {

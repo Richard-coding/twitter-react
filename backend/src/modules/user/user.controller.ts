@@ -24,12 +24,12 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get(':id/profile')
+  @Get(':username/profile')
   getProfile(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('username') username: string,
     @CurrentUser('id') currentUserId: string,
   ) {
-    return this.userService.getProfile(id, currentUserId);
+    return this.userService.getProfile(username, currentUserId);
   }
 
   @Get(':id')

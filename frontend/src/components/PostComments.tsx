@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import CommentService from "../services/comment.service";
 import toast from "react-hot-toast";
+import type { Like } from "../services/post.service";
+import type { User } from "../services/auth.service";
 
 interface Comment {
   id: string;
@@ -10,11 +12,8 @@ interface Comment {
   gradientTo: string;
   content: string;
   time: string;
-  likes: [];
-  user: {
-    id: string;
-    name: string;
-  };
+  likes: Like[];
+  user: User;
 }
 interface PostCommentsProps {
   postId: string;
@@ -35,8 +34,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
     }
   };
 
-  const handleCreateComment = async (postId: string, e: any) => {
-    e.preventDefault();
+  const handleCreateComment = async (postId: string) => {
     try {
       await CommentService.create(postId, { content: input });
       await handleSearchComment(postId);
@@ -46,7 +44,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
     }
   };
 
-  const handleDeleteComment = async (postId: any, commentId: string) => {
+  const handleDeleteComment = async (postId: string, commentId: string) => {
     try {
       await CommentService.delete(postId, commentId);
       await handleSearchComment(postId);
@@ -58,7 +56,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
   };
 
   const handleLikeComment = async (comment: Comment) => {
-    const liked = comment.likes.find((like: any) => like.userId === userId);
+    const liked = comment.likes.find((like) => like.userId === userId);
     try {
       if (liked) {
         await CommentService.unlike(postId, comment.id);
@@ -71,9 +69,26 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
     await handleSearchComment(postId);
   };
 
-  const handleReplyComment = (user: any) => {
-    const reply = "@" + user.name;
-    setInput(reply);
+  const handleReplyComment = async (username: string) => {
+    setInput((prev) => prev + " @" + username);
+  };
+
+  const parseMentions = (text: string) => {
+    const parts = text.split(/(@\w+)/g);
+
+    return parts.map((part, index) => {
+      if (part.startsWith("@")) {
+        const username = part.slice(1);
+
+        return (
+          <a className="text-blue-700" key={index} href={`/profile/${username}`}>
+            {part}
+          </a>
+        );
+      }
+
+      return part;
+    });
   };
 
   useEffect(() => {
@@ -86,7 +101,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
       style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
     >
       {/* Input de comentário */}
-      <form className="flex gap-3 mb-4">
+      <div className="flex gap-3 mb-4">
         <div
           className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-xs"
           style={{ background: "linear-gradient(135deg, #6d28d9, #7c3aed)" }}
@@ -111,8 +126,8 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
             type="submit"
             className="shrink-0 p-1.5 rounded-full transition-all disabled:opacity-30"
             style={{ color: "#a78bfa" }}
-            onClick={(event) => {
-              handleCreateComment(postId, event);
+            onClick={() => {
+              handleCreateComment(postId);
             }}
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -120,7 +135,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
             </svg>
           </button>
         </div>
-      </form>
+      </div>
 
       {/* Lista de comentários */}
       <div className="flex flex-col gap-3">
@@ -149,7 +164,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
                   {comment?.user.name}
                 </p>
                 <p className="text-sm text-slate-200 leading-relaxed">
-                  {comment.content}
+                  {parseMentions(comment.content)}
                 </p>
               </div>
 
@@ -172,7 +187,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
                 {userId !== comment.user.id && (
                   <button
                     className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-violet-400 transition-colors"
-                    onClick={() => handleReplyComment(comment.user)}
+                    onClick={() => handleReplyComment(comment.user.username)}
                   >
                     <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
                       <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
@@ -182,10 +197,10 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
                 )}
                 {userId === comment.user?.id && (
                   <button
-                    className="text-xs flex items-center gap-1.5 transition-colors text-slate-600 group hover:text-red-400"
+                    className="text-xs flex items-center gap-1.5 transition-colors text-slate-600 hover:text-red-400"
                     onClick={() => handleDeleteComment(postId, comment.id)}
                   >
-                    <span className="p-1.5 rounded-full group-hover:bg-red-500/10 transition-colors">
+                    <span className="p-1.5 rounded-full transition-colors">
                       <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                         <path d="M6 7h12v12c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2V7zm3 10h2V9H9v8zm4 0h2V9h-2v8zM15.5 4l-1-1h-5l-1 1H5v2h14V4h-3.5z" />
                       </svg>

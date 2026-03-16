@@ -2,26 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import authService, { type User } from "../services/auth.service";
-import PostService from "../services/post.service";
+import PostService, { type Like, type Post } from "../services/post.service";
 import AppSidebar from "../components/AppSidebar";
 import PostComments from "../components/PostComments";
+import formatInitials from "../utils/formatInitials";
 
- interface Like {
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: null;
-  userId: string;
-  postId: string;
-}
-interface Post {
-  id: string;
-  content: string;
-  createdAt: string;
-  likes?: Like[];
-  user?: { name: string };
-  userId: string;
-}
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -116,15 +101,6 @@ const HomePage = () => {
     }
   };
 
-  const userInitials = user?.name
-    ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "?";
-
   return (
     <main className="grid grid-cols-[auto_1fr_auto] h-dvh max-w-7xl mx-auto bg-[#070714] text-slate-100 font-sans">
       <AppSidebar />
@@ -157,7 +133,7 @@ const HomePage = () => {
             className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
             style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}
           >
-            {userInitials}
+            {formatInitials(user.name)}
           </div>
           <div className="flex-1">
             <textarea
@@ -227,7 +203,7 @@ const HomePage = () => {
                 {/* Like */}
                 <button
                   className={`flex items-center gap-1.5 transition-colors group hover:text-pink-400 ${
-                    post?.likes?.length ?? 0
+                    (post?.likes?.length ?? 0)
                       ? "text-pink-400"
                       : "text-slate-600 hover:text-pink-400"
                   }`}

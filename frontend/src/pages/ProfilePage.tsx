@@ -1,5 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppSidebar from "../components/AppSidebar";
+import { useNavigate, useParams } from "react-router-dom";
+import UserService from "../services/user.service";
+import type { User } from "../services/auth.service";
+import formatInitials from "../utils/formatInitials";
+import type { Post } from "../services/post.service";
+import PostService from "../services/post.service";
+
+interface UserProfile extends User {
+  stats: {
+    postsCount: number;
+    followersCount: number;
+    followingCount: number;
+  };
+}
 
 const MOCK_USER = {
   name: "Ana Silva",
@@ -64,11 +78,48 @@ const MOCK_LIKED = [
 type Tab = "posts" | "likes";
 
 export default function ProfilePage() {
+  const { username } = useParams();
   const [tab, setTab] = useState<Tab>("posts");
   const [following, setFollowing] = useState(false);
   const [editingBio, setEditingBio] = useState(false);
-  const [bio, setBio] = useState(MOCK_USER.bio);
-  const [bioInput, setBioInput] = useState(MOCK_USER.bio);
+  const [bio, setBio] = useState("");
+  const [bioInput, setBioInput] = useState("");
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [posts, setPosts] = useState<Post[] | null>(null);
+
+  const navigate = useNavigate();
+
+  const handleSearchProfile = async (id: string) => {
+    try {
+      const response = await UserService.getProfile(id);
+      setUser(response);
+      setBio(response.bio);
+      setBioInput(response.bio);
+    } catch (error) {}
+  };
+
+  const handleSearchPosts = async (userId: string) => {
+    try {
+      const response = await PostService.findAllByUserId(userId);
+      setPosts(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      handleSearchPosts(user.id);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (username) {
+      handleSearchProfile(username);
+    } else {
+      navigate("/home");
+    }
+  }, []);
 
   return (
     <main className="grid grid-cols-[auto_1fr_auto] h-dvh max-w-7xl mx-auto bg-[#070714] text-slate-100 font-sans">
@@ -96,8 +147,12 @@ export default function ProfilePage() {
             </svg>
           </button>
           <div>
-            <h1 className="text-lg font-bold text-slate-100">{MOCK_USER.name}</h1>
-            <p className="text-xs text-slate-500">{MOCK_USER.stats.posts} posts</p>
+            <h1 className="text-lg font-bold text-slate-100">
+              {user?.username}
+            </h1>
+            <p className="text-xs text-slate-500">
+              {user?.stats?.postsCount} posts
+            </p>
           </div>
         </div>
 
@@ -130,7 +185,7 @@ export default function ProfilePage() {
                 borderColor: "#070714",
               }}
             >
-              {MOCK_USER.avatarInitials}
+              {formatInitials(user?.username)}
             </div>
 
             {/* Botão */}
@@ -139,7 +194,10 @@ export default function ProfilePage() {
                 <button
                   onClick={() => setEditingBio(true)}
                   className="px-5 py-2 rounded-full text-sm font-bold border transition-all hover:bg-white/5"
-                  style={{ borderColor: "rgba(255,255,255,0.2)", color: "#e2e8f0" }}
+                  style={{
+                    borderColor: "rgba(255,255,255,0.2)",
+                    color: "#e2e8f0",
+                  }}
                 >
                   Editar perfil
                 </button>
@@ -155,7 +213,8 @@ export default function ProfilePage() {
                           background: "transparent",
                         }
                       : {
-                          background: "linear-gradient(135deg, #6d28d9, #7c3aed)",
+                          background:
+                            "linear-gradient(135deg, #6d28d9, #7c3aed)",
                           color: "white",
                         }
                   }
@@ -168,8 +227,10 @@ export default function ProfilePage() {
 
           {/* Info */}
           <div className="mb-4">
-            <h2 className="text-xl font-extrabold text-slate-100">{MOCK_USER.name}</h2>
-            <p className="text-slate-500 text-sm mb-3">@{MOCK_USER.username}</p>
+            <h2 className="text-xl font-extrabold text-slate-100">
+              {user?.name}
+            </h2>
+            <p className="text-slate-500 text-sm mb-3">@{user?.username}</p>
 
             {editingBio ? (
               <div className="mb-3">
@@ -189,16 +250,23 @@ export default function ProfilePage() {
                     Cancelar
                   </button>
                   <button
-                    onClick={() => { setBio(bioInput); setEditingBio(false); }}
+                    onClick={() => {
+                      setBio(bioInput);
+                      setEditingBio(false);
+                    }}
                     className="px-4 py-1.5 text-sm rounded-full font-bold text-white transition-all hover:opacity-85"
-                    style={{ background: "linear-gradient(135deg, #6d28d9, #7c3aed)" }}
+                    style={{
+                      background: "linear-gradient(135deg, #6d28d9, #7c3aed)",
+                    }}
                   >
                     Salvar
                   </button>
                 </div>
               </div>
             ) : (
-              <p className="text-slate-300 text-sm leading-relaxed mb-3">{bio}</p>
+              <p className="text-slate-300 text-sm leading-relaxed mb-3">
+                {bio}
+              </p>
             )}
 
             <div className="flex items-center gap-1.5 text-slate-500 text-sm">
@@ -212,11 +280,15 @@ export default function ProfilePage() {
           {/* Stats */}
           <div className="flex gap-5 mb-1 text-sm">
             <button className="hover:underline">
-              <span className="font-bold text-slate-100">{MOCK_USER.stats.following}</span>
+              <span className="font-bold text-slate-100">
+                {user?.stats?.followingCount}
+              </span>
               <span className="text-slate-500 ml-1">Seguindo</span>
             </button>
             <button className="hover:underline">
-              <span className="font-bold text-slate-100">{MOCK_USER.stats.followers}</span>
+              <span className="font-bold text-slate-100">
+                {user?.stats?.followersCount}
+              </span>
               <span className="text-slate-500 ml-1">Seguidores</span>
             </button>
           </div>
@@ -232,14 +304,18 @@ export default function ProfilePage() {
               key={t}
               onClick={() => setTab(t)}
               className={`flex-1 py-4 text-sm font-semibold transition-colors relative ${
-                tab === t ? "text-slate-100" : "text-slate-500 hover:text-slate-300"
+                tab === t
+                  ? "text-slate-100"
+                  : "text-slate-500 hover:text-slate-300"
               }`}
             >
               {t === "posts" ? "Posts" : "Curtidas"}
               {tab === t && (
                 <span
                   className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 w-12 rounded-full"
-                  style={{ background: "linear-gradient(90deg, #6d28d9, #a21caf)" }}
+                  style={{
+                    background: "linear-gradient(90deg, #6d28d9, #a21caf)",
+                  }}
                 />
               )}
             </button>
@@ -247,75 +323,89 @@ export default function ProfilePage() {
         </div>
 
         {/* Lista */}
-        {tab === "posts" ? (
-          MOCK_POSTS.map((post) => (
-            <article
-              key={post.id}
-              className="flex gap-3 p-4 hover:bg-white/2 transition-colors cursor-pointer"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
-            >
-              <div
-                className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
-                style={{ background: "linear-gradient(135deg, #6d28d9, #a21caf)" }}
+        {tab === "posts"
+          ? posts &&
+            posts?.length > 0 &&
+            posts?.map((post) => (
+              <article
+                key={post.id}
+                className="flex gap-3 p-4 hover:bg-white/2 transition-colors cursor-pointer"
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
               >
-                {MOCK_USER.avatarInitials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1 flex-wrap">
-                  <span className="font-bold text-sm text-slate-100">{MOCK_USER.name}</span>
-                  <span className="text-slate-600 text-sm">·</span>
-                  <span className="text-slate-500 text-sm">{post.time}</span>
+                <div
+                  className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
+                  style={{
+                    background: "linear-gradient(135deg, #6d28d9, #a21caf)",
+                  }}
+                >
+                  {MOCK_USER.avatarInitials}
                 </div>
-                <p className="mt-1 text-sm leading-relaxed text-slate-300">{post.content}</p>
-                <div className="flex gap-5 mt-3 text-slate-500 text-sm">
-                  <span className="flex items-center gap-1.5 hover:text-pink-400 transition-colors cursor-pointer">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                      <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
-                    </svg>
-                    {post.likes}
-                  </span>
-                  <span className="flex items-center gap-1.5 hover:text-violet-400 transition-colors cursor-pointer">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                      <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v9c0 1.381-1.119 2.5-2.5 2.5H10.031l-4.242 4.243c-.293.293-.768.293-1.061 0-.14-.14-.22-.331-.22-.53V17H4.498c-1.381 0-2.5-1.119-2.5-2.5v-9zm2.5-.5c-.276 0-.5.224-.5.5v9c0 .276.224.5.5.5h2.5v2.379l3.038-3.038.22-.22c.14-.14.331-.22.53-.22h9.212c.276 0 .5-.224.5-.5v-9c0-.276-.224-.5-.5-.5h-15z" />
-                    </svg>
-                    {post.comments}
-                  </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <span className="font-bold text-sm text-slate-100">
+                      {user?.name}
+                    </span>
+                    <span className="text-slate-600 text-sm">·</span>
+                    <span className="text-slate-500 text-sm">
+                      {post.createdAt}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                    {post.content}
+                  </p>
+                  <div className="flex gap-5 mt-3 text-slate-500 text-sm">
+                    <span className="flex items-center gap-1.5 hover:text-pink-400 transition-colors cursor-pointer">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
+                      </svg>
+                      {post.likes?.length ?? 0}
+                    </span>
+                    <span className="flex items-center gap-1.5 hover:text-violet-400 transition-colors cursor-pointer">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                        <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v9c0 1.381-1.119 2.5-2.5 2.5H10.031l-4.242 4.243c-.293.293-.768.293-1.061 0-.14-.14-.22-.331-.22-.53V17H4.498c-1.381 0-2.5-1.119-2.5-2.5v-9zm2.5-.5c-.276 0-.5.224-.5.5v9c0 .276.224.5.5.5h2.5v2.379l3.038-3.038.22-.22c.14-.14.331-.22.53-.22h9.212c.276 0 .5-.224.5-.5v-9c0-.276-.224-.5-.5-.5h-15z" />
+                      </svg>
+                      {post.comments}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))
-        ) : (
-          MOCK_LIKED.map((post) => (
-            <article
-              key={post.id}
-              className="flex gap-3 p-4 hover:bg-white/2 transition-colors cursor-pointer"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
-            >
-              <div
-                className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
-                style={{ background: "linear-gradient(135deg, #065f46, #059669)" }}
+              </article>
+            ))
+          : MOCK_LIKED.map((post) => (
+              <article
+                key={post.id}
+                className="flex gap-3 p-4 hover:bg-white/2 transition-colors cursor-pointer"
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
               >
-                {post.authorInitials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1 flex-wrap">
-                  <span className="font-bold text-sm text-slate-100">{post.authorName}</span>
-                  <span className="text-slate-600 text-sm">·</span>
-                  <span className="text-slate-500 text-sm">{post.time}</span>
+                <div
+                  className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
+                  style={{
+                    background: "linear-gradient(135deg, #065f46, #059669)",
+                  }}
+                >
+                  {post.authorInitials}
                 </div>
-                <p className="mt-1 text-sm leading-relaxed text-slate-300">{post.content}</p>
-                <div className="flex gap-5 mt-3 text-pink-400 text-sm">
-                  <span className="flex items-center gap-1.5">
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                      <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
-                    </svg>
-                    {post.likes}
-                  </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <span className="font-bold text-sm text-slate-100">
+                      {post.authorName}
+                    </span>
+                    <span className="text-slate-600 text-sm">·</span>
+                    <span className="text-slate-500 text-sm">{post.time}</span>
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                    {post.content}
+                  </p>
+                  <div className="flex gap-5 mt-3 text-pink-400 text-sm">
+                    <span className="flex items-center gap-1.5">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
+                      </svg>
+                      {post.likes}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))
-        )}
+              </article>
+            ))}
       </section>
 
       {/* ── SIDEBAR DIREITA (vazia / placeholder) ── */}

@@ -20,7 +20,7 @@ function App() {
         <Route path="/movies"   element={<MoviesPage />} />
         <Route path="/events"   element={<EventsPage />} />
         <Route path="/chores"   element={<ChoresPage />} />
-        <Route path="/profile/:id" element={<ProfilePage />} />
+        <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="*"         element={<Navigate to="/login" replace />} />
       </Routes>
 
