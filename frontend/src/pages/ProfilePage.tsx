@@ -1,19 +1,11 @@
 import { useEffect, useState } from "react";
 import AppSidebar from "../components/AppSidebar";
 import { useNavigate, useParams } from "react-router-dom";
-import UserService from "../services/user.service";
-import type { User } from "../services/auth.service";
+import UserService, { type IUserProfile } from "../services/user.service";
 import formatInitials from "../utils/formatInitials";
-import type { Post } from "../services/post.service";
-import PostService from "../services/post.service";
-
-interface UserProfile extends User {
-  stats: {
-    postsCount: number;
-    followersCount: number;
-    followingCount: number;
-  };
-}
+import PostService, { type IPost } from "../services/post.service";
+import Post from "../components/Post";
+import authService, { type IUserAuth } from "../services/auth.service";
 
 const MOCK_USER = {
   name: "Ana Silva",
@@ -24,38 +16,6 @@ const MOCK_USER = {
   stats: { posts: 47, followers: 6, following: 5 },
   isOwnProfile: true,
 };
-
-const MOCK_POSTS = [
-  {
-    id: "1",
-    content: "Alguém lembrou de comprar detergente? Acabou aqui 😅",
-    time: "há 2h",
-    likes: 3,
-    comments: 2,
-  },
-  {
-    id: "2",
-    content: "Assistimos Duna 2 hoje à noite? Eu faço a pipoca 🍿",
-    time: "há 1 dia",
-    likes: 5,
-    comments: 4,
-  },
-  {
-    id: "3",
-    content: "Lembrete: reunião de contas sexta-feira às 20h na sala!",
-    time: "há 3 dias",
-    likes: 6,
-    comments: 1,
-  },
-  {
-    id: "4",
-    content: "O banheiro tá impecável, obrigada a quem limpou 🫶",
-    time: "há 5 dias",
-    likes: 7,
-    comments: 3,
-  },
-];
-
 const MOCK_LIKED = [
   {
     id: "l1",
@@ -82,12 +42,35 @@ export default function ProfilePage() {
   const [tab, setTab] = useState<Tab>("posts");
   const [following, setFollowing] = useState(false);
   const [editingBio, setEditingBio] = useState(false);
-  const [bio, setBio] = useState("");
-  const [bioInput, setBioInput] = useState("");
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [bio, setBio] = useState<string | null>("");
+  const [bioInput, setBioInput] = useState<string | null>("");
+  const [user, setUser] = useState<IUserProfile | null>(null);
+  const [posts, setPosts] = useState<IPost[] | null>(null);
 
   const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
+
+  const [userLogged, setUserLogged] = useState<IUserAuth>(() => {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
+  });
+
+  const handleVerifyUser = async () => {
+    try {
+      if (!token) {
+        navigate("/login");
+      } else {
+        const response = await authService.getMe();
+        setUserLogged(response);
+      }
+    } catch {
+      navigate("/login");
+    }
+  };
+
+  useEffect(() => {
+    handleVerifyUser();
+  }, []);
 
   const handleSearchProfile = async (id: string) => {
     try {
@@ -235,7 +218,7 @@ export default function ProfilePage() {
             {editingBio ? (
               <div className="mb-3">
                 <textarea
-                  value={bioInput}
+                  value={bioInput || ""}
                   onChange={(e) => setBioInput(e.target.value)}
                   maxLength={160}
                   rows={3}
@@ -326,49 +309,13 @@ export default function ProfilePage() {
         {tab === "posts"
           ? posts &&
             posts?.length > 0 &&
+            user &&
             posts?.map((post) => (
-              <article
-                key={post.id}
-                className="flex gap-3 p-4 hover:bg-white/2 transition-colors cursor-pointer"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
-              >
-                <div
-                  className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
-                  style={{
-                    background: "linear-gradient(135deg, #6d28d9, #a21caf)",
-                  }}
-                >
-                  {MOCK_USER.avatarInitials}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <span className="font-bold text-sm text-slate-100">
-                      {user?.name}
-                    </span>
-                    <span className="text-slate-600 text-sm">·</span>
-                    <span className="text-slate-500 text-sm">
-                      {post.createdAt}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-300">
-                    {post.content}
-                  </p>
-                  <div className="flex gap-5 mt-3 text-slate-500 text-sm">
-                    <span className="flex items-center gap-1.5 hover:text-pink-400 transition-colors cursor-pointer">
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
-                      </svg>
-                      {post.likes?.length ?? 0}
-                    </span>
-                    <span className="flex items-center gap-1.5 hover:text-violet-400 transition-colors cursor-pointer">
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                        <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v9c0 1.381-1.119 2.5-2.5 2.5H10.031l-4.242 4.243c-.293.293-.768.293-1.061 0-.14-.14-.22-.331-.22-.53V17H4.498c-1.381 0-2.5-1.119-2.5-2.5v-9zm2.5-.5c-.276 0-.5.224-.5.5v9c0 .276.224.5.5.5h2.5v2.379l3.038-3.038.22-.22c.14-.14.331-.22.53-.22h9.212c.276 0 .5-.224.5-.5v-9c0-.276-.224-.5-.5-.5h-15z" />
-                      </svg>
-                      {post.comments}
-                    </span>
-                  </div>
-                </div>
-              </article>
+              <Post
+                data={post}
+                searchPostData={() => handleSearchPosts(user.id)}
+                userData={userLogged}
+              />
             ))
           : MOCK_LIKED.map((post) => (
               <article

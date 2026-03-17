@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import CommentService from "../services/comment.service";
 import toast from "react-hot-toast";
 import type { Like } from "../services/post.service";
-import type { User } from "../services/auth.service";
+import type { IUser } from "../services/user.service";
 
 interface Comment {
   id: string;
@@ -12,10 +12,10 @@ interface Comment {
   gradientTo: string;
   content: string;
   time: string;
-  likes: Like[];
-  user: User;
+  likes: Like[];  
+  user: IUser;
 }
-interface PostCommentsProps {
+export interface PostCommentsProps {
   postId: string;
   userId: string;
 }

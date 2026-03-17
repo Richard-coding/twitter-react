@@ -1,9 +1,5 @@
 import api from "./api";
 
-interface Icomment {
-  content: string;
-}
-
 export const CommentService = {
   async findAllByPostId(id: string): Promise<any> {
     const response = await api.get<any>(`/posts/${id}/comments`);

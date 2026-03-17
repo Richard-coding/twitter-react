@@ -12,9 +12,11 @@ interface IUserLogin {
   password: string;
 }
 
-export interface User {
+export interface IUserAuth {
   id: string;
   createdAt: string;
+  bio: null;
+  avatarUrl: null;
   updatedAt: string;
   deletedAt: null;
   name: string;
@@ -40,8 +42,8 @@ export const authService = {
     const response = await api.post<AuthResponse>("/auth/login", data);
     return response.data;
   },
-  async getMe(): Promise<User> {
-    const response = await api.get<User>("/auth/me");
+  async getMe(): Promise<IUserAuth> {
+    const response = await api.get<IUserAuth>("/auth/me");
     return response.data;
   },
 };

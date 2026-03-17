@@ -1,6 +1,7 @@
 import api from "./api";
+import type { IUser } from "./user.service";
 
-interface IPost {
+interface IPostData {
   content: string;
 }
 
@@ -12,17 +13,17 @@ export interface Like {
   userId: string;
   postId: string;
 }
-export interface Post {
+export interface IPost {
   id: string;
   content: string;
   createdAt: string;
   likes?: Like[];
-  user?: { name: string };
+  user: IUser;
   userId: string;
 }
 
 export const PostService = {
-  async create(data: IPost): Promise<IPost> {
+  async create(data: IPostData): Promise<IPost> {
     const response = await api.post<any>("/posts", data);
     return response.data;
   },

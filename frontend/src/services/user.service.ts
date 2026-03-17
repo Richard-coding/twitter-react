@@ -1,7 +1,8 @@
 import api from "./api";
 
-interface Iuser {
+export interface IUser {
   id: string;
+  username: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: null;
@@ -12,17 +13,21 @@ interface Iuser {
   role: string;
   isActive: boolean;
   lastLoginAt: string;
+}
+
+export interface IUserProfile extends IUser {
+  isFollowing: false;
+
   stats: {
     postsCount: number;
     followersCount: number;
     followingCount: number;
   };
-  isFollowing: false;
 }
 
 export const UserService = {
-  async getProfile(id: string): Promise<any> {
-    const response = await api.get<any>(`/users/${id}/profile`);
+  async getProfile(id: string): Promise<IUserProfile> {
+    const response = await api.get<IUserProfile>(`/users/${id}/profile`);
     return response.data;
   },
 };
