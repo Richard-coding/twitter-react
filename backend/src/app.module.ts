@@ -15,7 +15,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { ShoppingModule } from './modules/shopping/shopping.module';
 import { MovieModule } from './modules/movie/movie.module';
 import { EventModule } from './modules/event/event.module';
-import { ChoreModule } from './modules/chore/chore.module';
+import { ImprovementModule } from './modules/improvement/improvement.module';
 
 @Module({
   imports: [
@@ -51,7 +51,7 @@ import { ChoreModule } from './modules/chore/chore.module';
     ShoppingModule,
     MovieModule,
     EventModule,
-    ChoreModule,
+    ImprovementModule,
   ],
   providers: [
     {

@@ -6,7 +6,7 @@ import HomePage from "./pages/HomePage";
 import ShoppingPage from "./pages/ShoppingPage";
 import MoviesPage from "./pages/MoviesPage";
 import EventsPage from "./pages/EventsPage";
-import ChoresPage from "./pages/ChoresPage";
+import ImprovementsPage from "./pages/ImprovementsPage";
 import ProfilePage from "./pages/ProfilePage";
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
         <Route path="/shopping" element={<ShoppingPage />} />
         <Route path="/movies"   element={<MoviesPage />} />
         <Route path="/events"   element={<EventsPage />} />
-        <Route path="/chores"   element={<ChoresPage />} />
+        <Route path="/improvements" element={<ImprovementsPage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="*"         element={<Navigate to="/login" replace />} />
       </Routes>

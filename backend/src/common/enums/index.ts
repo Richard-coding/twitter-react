@@ -14,11 +14,15 @@ export enum RsvpStatus {
   MAYBE = 'MAYBE',
 }
 
-export enum ChoreFrequency {
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  BIWEEKLY = 'BIWEEKLY',
-  MONTHLY = 'MONTHLY',
+export enum ImprovementType {
+  FEATURE = 'FEATURE',
+  BUG = 'BUG',
+}
+
+export enum ImprovementStatus {
+  OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
 }
 
 export enum ReactionType {
