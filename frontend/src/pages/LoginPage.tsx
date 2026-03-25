@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/auth.service";
 import toast from "react-hot-toast";
@@ -15,6 +15,19 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const handleVerify = () => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
+  };
+
+  useEffect(() => {
+    handleVerify();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     try {

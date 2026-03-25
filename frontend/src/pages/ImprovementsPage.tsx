@@ -1,20 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppSidebar from "../components/AppSidebar";
+import ImprovementService from "../services/improvement.service";
+import type { IUser } from "../services/user.service";
 
 type ImprovementType = "FEATURE" | "BUG";
 type ImprovementStatus = "OPEN" | "IN_PROGRESS" | "DONE";
 
 interface Improvement {
-  id: number;
+  id: string;
   title: string;
   description?: string;
   type: ImprovementType;
   status: ImprovementStatus;
-  createdBy: string;
+  createdBy: IUser;
   createdAt: string;
 }
 
-const TYPE_CONFIG: Record<ImprovementType, { label: string; color: React.CSSProperties; icon: string }> = {
+const TYPE_CONFIG: Record<
+  ImprovementType,
+  { label: string; color: React.CSSProperties; icon: string }
+> = {
   FEATURE: {
     label: "Feature",
     color: { background: "rgba(37,99,235,0.15)", color: "#60a5fa" },
@@ -27,21 +32,25 @@ const TYPE_CONFIG: Record<ImprovementType, { label: string; color: React.CSSProp
   },
 };
 
-const STATUS_CONFIG: Record<ImprovementStatus, { label: string; color: React.CSSProperties }> = {
-  OPEN:        { label: "Aberta",        color: { background: "rgba(100,116,139,0.15)", color: "#94a3b8" } },
-  IN_PROGRESS: { label: "Em andamento",  color: { background: "rgba(234,179,8,0.15)",  color: "#facc15" } },
-  DONE:        { label: "Concluída",     color: { background: "rgba(5,150,105,0.15)",   color: "#34d399" } },
+const STATUS_CONFIG: Record<
+  ImprovementStatus,
+  { label: string; color: React.CSSProperties }
+> = {
+  OPEN: {
+    label: "Aberta",
+    color: { background: "rgba(100,116,139,0.15)", color: "#94a3b8" },
+  },
+  IN_PROGRESS: {
+    label: "Em andamento",
+    color: { background: "rgba(234,179,8,0.15)", color: "#facc15" },
+  },
+  DONE: {
+    label: "Concluída",
+    color: { background: "rgba(5,150,105,0.15)", color: "#34d399" },
+  },
 };
 
 const STATUSES: ImprovementStatus[] = ["OPEN", "IN_PROGRESS", "DONE"];
-
-const INITIAL: Improvement[] = [
-  { id: 1, title: "Modo escuro melhorado",       description: "Ajustar contraste nos cards de filme",             type: "FEATURE", status: "OPEN",        createdBy: "Ana",      createdAt: "2026-03-20" },
-  { id: 2, title: "Notificações em tempo real",  description: "Receber push quando alguém menciona você",         type: "FEATURE", status: "IN_PROGRESS", createdBy: "Bernardo", createdAt: "2026-03-18" },
-  { id: 3, title: "Bug no login com @",           description: "Ao usar @ no usuário o login falha silenciosamente", type: "BUG",  status: "OPEN",        createdBy: "Carlos",   createdAt: "2026-03-22" },
-  { id: 4, title: "Paginação na home",            description: "Carregar mais posts ao rolar até o fim",           type: "FEATURE", status: "DONE",        createdBy: "Ana",      createdAt: "2026-03-10" },
-  { id: 5, title: "Avatar não carrega no Safari",                                                                   type: "BUG",  status: "IN_PROGRESS", createdBy: "Débora",   createdAt: "2026-03-21" },
-];
 
 const inputStyle: React.CSSProperties = {
   background: "rgba(255,255,255,0.06)",
@@ -49,37 +58,48 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function ImprovementsPage() {
-  const [items, setItems] = useState<Improvement[]>(INITIAL);
+  const [items, setItems] = useState<Improvement[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", type: "FEATURE" as ImprovementType });
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    type: "FEATURE" as ImprovementType,
+  });
 
-  function addImprovement() {
-    if (!form.title.trim()) return;
-    setItems((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        title: form.title,
-        description: form.description || undefined,
-        type: form.type,
-        status: "OPEN",
-        createdBy: "Você",
-        createdAt: new Date().toISOString().slice(0, 10),
-      },
-    ]);
-    setForm({ title: "", description: "", type: "FEATURE" });
-    setShowModal(false);
-  }
-
-  function moveStatus(id: number, status: ImprovementStatus) {
+  function moveStatus(id: string, status: ImprovementStatus) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
   }
 
-  function remove(id: number) {
+  function remove(id: string) {
     setItems((prev) => prev.filter((i) => i.id !== id));
   }
 
-  const byStatus = (s: ImprovementStatus) => items.filter((i) => i.status === s);
+  const byStatus = (s: ImprovementStatus) =>
+    items.filter((i) => i.status === s);
+
+  const handleFindAll = async () => {
+    try {
+      const response = await ImprovementService.findAll();
+      setItems(response);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCreateImprovement = async () => {
+    try {
+      await ImprovementService.create(form);
+      handleFindAll();
+      setShowModal(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    handleFindAll();
+  }, []);
 
   return (
     <main className="grid grid-cols-[auto_1fr] h-dvh max-w-6xl mx-auto bg-[#070714] text-slate-100 font-sans">
@@ -89,14 +109,18 @@ export default function ImprovementsPage() {
         {/* Header */}
         <div
           className="sticky top-0 z-10 backdrop-blur-sm px-6 py-4 flex items-center justify-between"
-          style={{ background: "rgba(7,7,20,0.85)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+          style={{
+            background: "rgba(7,7,20,0.85)",
+            borderBottom: "1px solid rgba(255,255,255,0.07)",
+          }}
         >
           <div>
             <h1 className="text-xl font-bold text-slate-100">Melhorias</h1>
             <p className="text-xs text-slate-500 mt-0.5">
               {items.filter((i) => i.status === "OPEN").length} abertas ·{" "}
-              {items.filter((i) => i.status === "IN_PROGRESS").length} em andamento ·{" "}
-              {items.filter((i) => i.status === "DONE").length} concluídas
+              {items.filter((i) => i.status === "IN_PROGRESS").length} em
+              andamento · {items.filter((i) => i.status === "DONE").length}{" "}
+              concluídas
             </p>
           </div>
           <button
@@ -119,20 +143,32 @@ export default function ImprovementsPage() {
             return (
               <div key={status} className="flex flex-col gap-3">
                 {/* Column header */}
-                <div className="flex items-center gap-2 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={cfg.color}>
+                <div
+                  className="flex items-center gap-2 pb-3"
+                  style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+                >
+                  <span
+                    className="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={cfg.color}
+                  >
                     {cfg.label}
                   </span>
-                  <span className="text-xs text-slate-600 font-medium">{col.length}</span>
+                  <span className="text-xs text-slate-600 font-medium">
+                    {col.length}
+                  </span>
                 </div>
 
                 {/* Cards */}
                 {col.length === 0 && (
-                  <div className="text-center py-10 text-slate-700 text-xs">Nenhuma aqui</div>
+                  <div className="text-center py-10 text-slate-700 text-xs">
+                    Nenhuma aqui
+                  </div>
                 )}
                 {col.map((item) => {
                   const typeCfg = TYPE_CONFIG[item.type];
-                  const nextStatuses = STATUSES.filter((s) => s !== item.status);
+                  const nextStatuses = STATUSES.filter(
+                    (s) => s !== item.status,
+                  );
                   return (
                     <div
                       key={item.id}
@@ -144,14 +180,20 @@ export default function ImprovementsPage() {
                     >
                       {/* Type badge + delete */}
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={typeCfg.color}>
+                        <span
+                          className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                          style={typeCfg.color}
+                        >
                           {typeCfg.icon} {typeCfg.label}
                         </span>
                         <button
                           onClick={() => remove(item.id)}
                           className="opacity-0 group-hover:opacity-100 p-1 rounded-full transition-all hover:bg-red-500/10 text-slate-600 hover:text-red-400"
                         >
-                          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="w-3.5 h-3.5 fill-current"
+                          >
                             <path d="M6 7h12v12c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2V7zm3 10h2V9H9v8zm4 0h2V9h-2v8zM15.5 4l-1-1h-5l-1 1H5v2h14V4h-3.5z" />
                           </svg>
                         </button>
@@ -159,15 +201,20 @@ export default function ImprovementsPage() {
 
                       {/* Title + description */}
                       <div>
-                        <p className="text-sm font-semibold text-slate-100 leading-snug">{item.title}</p>
+                        <p className="text-sm font-semibold text-slate-100 leading-snug">
+                          {item.title}
+                        </p>
                         {item.description && (
-                          <p className="text-xs text-slate-500 mt-1 leading-relaxed">{item.description}</p>
+                          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                            {item.description}
+                          </p>
                         )}
                       </div>
 
                       {/* Meta */}
                       <p className="text-xs text-slate-600">
-                        {item.createdBy} · {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                        {item.createdBy.name} ·{" "}
+                        {new Date(item.createdAt).toLocaleDateString("pt-BR")}
                       </p>
 
                       {/* Move actions */}
@@ -196,17 +243,27 @@ export default function ImprovementsPage() {
       {showModal && (
         <div
           className="absolute inset-0 flex items-center justify-center z-30"
-          style={{ background: "rgba(7,7,20,0.8)", backdropFilter: "blur(8px)" }}
+          style={{
+            background: "rgba(7,7,20,0.8)",
+            backdropFilter: "blur(8px)",
+          }}
         >
           <div
             className="w-full max-w-md rounded-3xl p-8 shadow-2xl"
-            style={{ background: "rgba(15,10,35,0.98)", border: "1px solid rgba(124,58,237,0.3)" }}
+            style={{
+              background: "rgba(15,10,35,0.98)",
+              border: "1px solid rgba(124,58,237,0.3)",
+            }}
           >
-            <h2 className="text-lg font-bold text-slate-100 mb-6">Nova solicitação</h2>
+            <h2 className="text-lg font-bold text-slate-100 mb-6">
+              Nova solicitação
+            </h2>
 
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tipo</label>
+                <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Tipo
+                </label>
                 <div className="flex gap-2">
                   {(["FEATURE", "BUG"] as ImprovementType[]).map((t) => (
                     <button
@@ -215,7 +272,10 @@ export default function ImprovementsPage() {
                       className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
                       style={
                         form.type === t
-                          ? { ...TYPE_CONFIG[t].color, border: "1px solid transparent" }
+                          ? {
+                              ...TYPE_CONFIG[t].color,
+                              border: "1px solid transparent",
+                            }
                           : { ...inputStyle, color: "#64748b" }
                       }
                     >
@@ -226,7 +286,9 @@ export default function ImprovementsPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Título</label>
+                <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Título
+                </label>
                 <input
                   type="text"
                   placeholder="Descreva brevemente"
@@ -239,12 +301,15 @@ export default function ImprovementsPage() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Descrição <span className="normal-case text-slate-600">(opcional)</span>
+                  Descrição{" "}
+                  <span className="normal-case text-slate-600">(opcional)</span>
                 </label>
                 <textarea
                   placeholder="Detalhes adicionais..."
                   value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
                   rows={3}
                   className="rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 outline-none resize-none"
                   style={inputStyle}
@@ -261,8 +326,12 @@ export default function ImprovementsPage() {
               </button>
               <button
                 className="px-5 py-2.5 rounded-full text-sm font-bold text-white transition-all hover:opacity-85"
-                style={{ background: "linear-gradient(135deg, #6d28d9, #7c3aed)" }}
-                onClick={addImprovement}
+                style={{
+                  background: "linear-gradient(135deg, #6d28d9, #7c3aed)",
+                }}
+                onClick={() => {
+                  handleCreateImprovement();
+                }}
               >
                 Enviar
               </button>
