@@ -70,10 +70,6 @@ export default function ImprovementsPage() {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
   }
 
-  function remove(id: string) {
-    setItems((prev) => prev.filter((i) => i.id !== id));
-  }
-
   const byStatus = (s: ImprovementStatus) =>
     items.filter((i) => i.status === s);
 
@@ -92,6 +88,19 @@ export default function ImprovementsPage() {
       await ImprovementService.create(form);
       handleFindAll();
       setShowModal(false);
+      setForm((prev) => ({
+        ...prev,
+        title: "",
+        description: "",
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleDeleteImprovement = async (id: string) => {
+    try {
+      await ImprovementService.delete(id);
+      handleFindAll();
     } catch (error) {
       console.log(error);
     }
@@ -187,7 +196,7 @@ export default function ImprovementsPage() {
                           {typeCfg.icon} {typeCfg.label}
                         </span>
                         <button
-                          onClick={() => remove(item.id)}
+                          onClick={() => handleDeleteImprovement(item.id)}
                           className="opacity-0 group-hover:opacity-100 p-1 rounded-full transition-all hover:bg-red-500/10 text-slate-600 hover:text-red-400"
                         >
                           <svg

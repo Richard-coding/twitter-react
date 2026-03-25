@@ -15,6 +15,11 @@ export const ImprovementService = {
     const response = await api.post<any>("/improvements", data);
     return response.data;
   },
+
+  async delete(id: string): Promise<any> {
+    const response = await api.delete<any>(`/improvements/${id}`);
+    return response;
+  },
 };
 
 export default ImprovementService;
