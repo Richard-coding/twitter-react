@@ -17,9 +17,6 @@ const Post = ({
   const [inputEdit, setInputEdit] = useState("");
   const [isOpenComment, setIsOpenComment] = useState(false);
 
-  console.log(data);
-  console.log(userData);
-
   const handleDeletePost = async (id: string) => {
     try {
       await PostService.delete(id);

@@ -128,7 +128,12 @@ const HomePage = () => {
 
         {/* Posts */}
         {posts.map((post) => (
-          <Post data={post} searchPostData={searchPostData} userData={user} />
+          <Post
+            key={post.id}
+            data={post}
+            searchPostData={searchPostData}
+            userData={user}
+          />
         ))}
       </section>
 
