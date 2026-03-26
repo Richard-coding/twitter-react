@@ -41,12 +41,6 @@ export class ImprovementService {
     });
     if (!improvement) throw new NotFoundException('Improvement not found');
 
-    const isAdmin = currentUser.role === UserRole.ADMIN;
-    const isOwner = improvement.createdById === currentUser.id;
-    if (!isAdmin && !isOwner) {
-      throw new ForbiddenException('Only the creator or an admin can update status');
-    }
-
     if (dto.status !== undefined) improvement.status = dto.status;
     return this.repo.save(improvement);
   }
@@ -54,12 +48,6 @@ export class ImprovementService {
   async remove(id: string, currentUser: { id: string; role: UserRole }): Promise<void> {
     const improvement = await this.repo.findOne({ where: { id } });
     if (!improvement) throw new NotFoundException('Improvement not found');
-
-    const isAdmin = currentUser.role === UserRole.ADMIN;
-    const isOwner = improvement.createdById === currentUser.id;
-    if (!isAdmin && !isOwner) {
-      throw new ForbiddenException('Only the creator or an admin can delete');
-    }
 
     await this.repo.remove(improvement);
   }

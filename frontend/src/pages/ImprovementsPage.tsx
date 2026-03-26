@@ -66,10 +66,6 @@ export default function ImprovementsPage() {
     type: "FEATURE" as ImprovementType,
   });
 
-  function moveStatus(id: string, status: ImprovementStatus) {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
-  }
-
   const byStatus = (s: ImprovementStatus) =>
     items.filter((i) => i.status === s);
 
@@ -77,7 +73,6 @@ export default function ImprovementsPage() {
     try {
       const response = await ImprovementService.findAll();
       setItems(response);
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -100,6 +95,15 @@ export default function ImprovementsPage() {
   const handleDeleteImprovement = async (id: string) => {
     try {
       await ImprovementService.delete(id);
+      handleFindAll();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleChangeStatus = async (id: string, status: ImprovementStatus) => {
+    try {
+      await ImprovementService.updateStatus(id, status);
       handleFindAll();
     } catch (error) {
       console.log(error);
@@ -231,7 +235,7 @@ export default function ImprovementsPage() {
                         {nextStatuses.map((s) => (
                           <button
                             key={s}
-                            onClick={() => moveStatus(item.id, s)}
+                            onClick={() => handleChangeStatus(item.id, s)}
                             className="text-xs px-2 py-1 rounded-full transition-all hover:opacity-80"
                             style={STATUS_CONFIG[s].color}
                           >

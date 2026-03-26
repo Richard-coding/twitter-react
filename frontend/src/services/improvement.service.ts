@@ -20,6 +20,12 @@ export const ImprovementService = {
     const response = await api.delete<any>(`/improvements/${id}`);
     return response;
   },
+  async updateStatus(id: string, status: string): Promise<any> {
+    const response = await api.patch<any>(`/improvements/${id}/status`, {
+      status,
+    });
+    return response.data;
+  },
 };
 
 export default ImprovementService;
