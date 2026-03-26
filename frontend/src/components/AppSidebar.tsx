@@ -59,10 +59,16 @@ const navItems = [
 export default function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const user: { name?: string } = JSON.parse(localStorage.getItem("user") || "{}");
+  const user: { name?: string } = JSON.parse(
+    localStorage.getItem("user") || "{}",
+  );
   const userInitials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
     : "?";
 
   return (
@@ -123,7 +129,7 @@ export default function AppSidebar() {
       {/* Avatar */}
       <div
         className="mt-auto flex items-center gap-3 p-3 rounded-full cursor-pointer hover:bg-white/5 transition-colors"
-        onClick={() => navigate("/profile/me")}
+        onClick={() => navigate(`/profile/${user.name}`)}
       >
         <div
           className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
@@ -132,12 +138,17 @@ export default function AppSidebar() {
           {userInitials}
         </div>
         <div className="hidden xl:block flex-1 min-w-0">
-          <p className="font-bold text-sm truncate text-slate-100">{user?.name ?? "Usuário"}</p>
+          <p className="font-bold text-sm truncate text-slate-100">
+            {user?.name ?? "Usuário"}
+          </p>
           <p className="text-slate-500 text-sm truncate">
             @{user?.name?.toLowerCase().replace(/\s/g, "") ?? "user"}
           </p>
         </div>
-        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-slate-500 hidden xl:block">
+        <svg
+          viewBox="0 0 24 24"
+          className="w-5 h-5 fill-slate-500 hidden xl:block"
+        >
           <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z" />
         </svg>
       </div>
