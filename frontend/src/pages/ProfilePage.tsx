@@ -154,7 +154,7 @@ export default function ProfilePage() {
           <div className="flex items-end justify-between -mt-12 mb-4">
             {/* Avatar */}
             <div
-              className="w-24 h-24 rounded-full border-4 flex items-center justify-center text-white font-extrabold text-2xl shrink-0"
+              className="w-24 h-24 rounded-full border-4 flex items-center justify-center text-white font-extrabold text-2xl shrink-0 z-10"
               style={{
                 background: "linear-gradient(135deg, #6d28d9, #a21caf)",
                 borderColor: "#070714",
