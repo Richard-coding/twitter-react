@@ -6,16 +6,8 @@ import formatInitials from "../utils/formatInitials";
 import PostService, { type IPost } from "../services/post.service";
 import Post from "../components/Post";
 import authService, { type IUserAuth } from "../services/auth.service";
+import { formatDate } from "../utils/formatDate";
 
-const MOCK_USER = {
-  name: "Ana Silva",
-  username: "anasilva",
-  bio: "Moradora há 2 anos 🏠 • Amante de filmes e boa comida • Organizo a lista de compras com amor ❤️",
-  joinedAt: "Março de 2024",
-  avatarInitials: "AS",
-  stats: { posts: 47, followers: 6, following: 5 },
-  isOwnProfile: true,
-};
 const MOCK_LIKED = [
   {
     id: "l1",
@@ -173,7 +165,7 @@ export default function ProfilePage() {
 
             {/* Botão */}
             <div className="mt-14">
-              {MOCK_USER.isOwnProfile ? (
+              {userLogged.id === user?.id ? (
                 <button
                   onClick={() => setEditingBio(true)}
                   className="px-5 py-2 rounded-full text-sm font-bold border transition-all hover:bg-white/5"
@@ -256,7 +248,12 @@ export default function ProfilePage() {
               <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                 <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zm-7-9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
               </svg>
-              <span>Entrou em {MOCK_USER.joinedAt}</span>
+              <span>
+                Entrou em
+                {user?.createdAt
+                  ? " " + formatDate(user.createdAt)
+                  : "Data desconhecida"}
+              </span>
             </div>
           </div>
 
