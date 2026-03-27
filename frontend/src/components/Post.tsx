@@ -30,9 +30,9 @@ const Post = ({
   const handleLikePost = async (id: string, likes: any) => {
     try {
       if (data.userId === userData.id) {
-        toast.error("Não é possível curtir o próprio post", {id: "isOwn"});
+        toast.error("Não é possível curtir o próprio post", { id: "isOwn" });
         return;
-      } 
+      }
       const liked = likes.find((like: Like) => like.userId === userData?.id);
       if (liked?.id) {
         await PostService.unlike(id);
@@ -71,9 +71,15 @@ const Post = ({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1 flex-wrap">
-          <span className="font-bold text-sm text-slate-100">
-            {data.user?.name ?? "Usuário"}
+          <span>
+            <a
+              href={`/profile/${data.user?.username}`}
+              className="font-bold text-sm text-slate-100 hover:text-white/60"
+            >
+              {data.user?.name ?? "Usuário"}
+            </a>
           </span>
+
           <span className="text-slate-600 text-sm">·</span>
           <span className="text-slate-500 text-sm">
             {new Date(data.createdAt).toLocaleDateString("pt-BR")}
