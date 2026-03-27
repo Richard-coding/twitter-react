@@ -79,7 +79,7 @@ const Post = ({
             {new Date(data.createdAt).toLocaleDateString("pt-BR")}
           </span>
         </div>
-        <p className="mt-1 text-sm leading-relaxed text-slate-300">
+        <p className="mt-1 text-sm leading-relaxed text-slate-300 wrap-break-word">
           {data.content}
         </p>
         <div className="flex gap-6 mt-3 text-sm text-slate-500">

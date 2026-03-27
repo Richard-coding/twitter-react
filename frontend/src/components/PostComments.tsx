@@ -129,7 +129,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
           <input
             type="text"
             placeholder="Escreva um comentário..."
-            className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-600 outline-none"
+            className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-600 outline-none "
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
@@ -174,7 +174,7 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
                 <p className="text-xs font-semibold text-violet-300 mb-0.5">
                   {comment?.user.name}
                 </p>
-                <p className="text-sm text-slate-200 leading-relaxed">
+                <p className="text-sm text-slate-200 leading-relaxed wrap-break-word">
                   {parseMentions(comment.content)}
                 </p>
               </div>
