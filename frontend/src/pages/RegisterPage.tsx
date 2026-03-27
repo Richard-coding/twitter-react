@@ -40,6 +40,15 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     try {
       e.preventDefault();
+      const isValidUsername =
+        /^[a-zA-Z0-9_]+$/.test(username) &&
+        username.length >= 4 &&
+        username.length <= 15;
+
+      if (!isValidUsername) {
+        toast.error("Username inválido", { id: "register" });
+        return;
+      }
       if (password !== confirm) {
         toast.error("As senhas não coincidem", { id: "register" });
         return;
@@ -49,11 +58,8 @@ export default function RegisterPage() {
       toast.success("Sua conta foi criada", { id: "register" });
 
       navigate("/login");
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Algo de errado aconteceu",
-        { id: "register" },
-      );
+    } catch (error) {
+      toast.error("Algo de errado aconteceu", { id: "register" });
     }
   }
 
