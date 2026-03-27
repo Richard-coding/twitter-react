@@ -12,7 +12,7 @@ interface Comment {
   gradientTo: string;
   content: string;
   time: string;
-  likes: Like[];  
+  likes: Like[];
   user: IUser;
 }
 export interface PostCommentsProps {
@@ -57,6 +57,13 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
 
   const handleLikeComment = async (comment: Comment) => {
     const liked = comment.likes.find((like) => like.userId === userId);
+
+    if (userId === comment.user.id) {
+      toast.error("Não é possível curtir o próprio comentário", {
+        id: "isOwnComment",
+      });
+      return;
+    }
     try {
       if (liked) {
         await CommentService.unlike(postId, comment.id);
@@ -81,7 +88,11 @@ export default function PostComments({ postId, userId }: PostCommentsProps) {
         const username = part.slice(1);
 
         return (
-          <a className="text-blue-700" key={index} href={`/profile/${username}`}>
+          <a
+            className="text-blue-700"
+            key={index}
+            href={`/profile/${username}`}
+          >
             {part}
           </a>
         );
