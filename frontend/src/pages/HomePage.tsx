@@ -47,7 +47,7 @@ const HomePage = () => {
     try {
       const response = await PostService.findAll();
       setPosts(response);
-      toast.success("Publicações atualizadas");
+      toast.success("Publicações atualizadas", {id: "search"});
     } catch (error) {}
   };
 
@@ -107,6 +107,10 @@ const HomePage = () => {
               className="w-full bg-transparent text-lg placeholder-slate-600 resize-none outline-none pt-2 min-h-20 text-slate-100"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={({ key }) => {
+                if (key !== "Enter") return;
+                handleCreatePost();
+              }}
             />
             <div
               className="flex items-center justify-between mt-2 pt-3"
@@ -125,7 +129,9 @@ const HomePage = () => {
                 </button>
               </div>
               <button
-                onClick={handleCreatePost}
+                onClick={() => {
+                  handleCreatePost();
+                }}
                 className="text-white font-bold rounded-full px-5 py-2 text-sm transition-all hover:opacity-85"
                 style={{
                   background: "linear-gradient(135deg, #6d28d9, #7c3aed)",
@@ -181,17 +187,17 @@ const HomePage = () => {
           <h2 className="text-base font-bold mb-3 text-slate-100">
             Moradores da Casa
           </h2>
-          {
-          users && users.map((user) => (
-            <div key={user.name} className="flex items-center gap-3 py-2">
-              <div
-                className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-xs bg-gray-300/10"
-              >
-                {formatInitials(user?.username)}
+          {users &&
+            users.map((user) => (
+              <div key={user.name} className="flex items-center gap-3 py-2">
+                <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-xs bg-gray-300/10">
+                  {formatInitials(user?.username)}
+                </div>
+                <p className="text-sm font-medium text-slate-300">
+                  {user?.name}
+                </p>
               </div>
-              <p className="text-sm font-medium text-slate-300">{user?.name}</p>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* Atividade Recente */}

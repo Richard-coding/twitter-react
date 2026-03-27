@@ -21,7 +21,7 @@ const Post = ({
     try {
       await PostService.delete(id);
       await searchPostData();
-      toast.success("Publicação deletada com sucesso");
+      toast.success("Publicação deletada com sucesso", {id: "deleted"});
     } catch (error) {
       toast.error("Não foi possivel deletar esse post");
     }
