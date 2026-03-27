@@ -24,10 +24,13 @@ export interface IUserProfile extends IUser {
     followingCount: number;
   };
 }
-
 export const UserService = {
   async getProfile(id: string): Promise<IUserProfile> {
     const response = await api.get<IUserProfile>(`/users/${id}/profile`);
+    return response.data;
+  },
+  async findAll(): Promise<any> {
+    const response = await api.get<IUser>("/users");
     return response.data;
   },
 };

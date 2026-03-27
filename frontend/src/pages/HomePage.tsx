@@ -6,6 +6,7 @@ import PostService, { type IPost } from "../services/post.service";
 import AppSidebar from "../components/AppSidebar";
 import formatInitials from "../utils/formatInitials";
 import Post from "../components/Post";
+import UserService, { type IUser } from "../services/user.service";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const HomePage = () => {
     const userStr = localStorage.getItem("user");
     return userStr ? JSON.parse(userStr) : null;
   });
+  const [users, setUsers] = useState<IUser[]>();
 
   const handleVerifyUser = async () => {
     try {
@@ -33,9 +35,13 @@ const HomePage = () => {
     }
   };
 
-  useEffect(() => {
-    handleVerifyUser();
-  }, []);
+  const handleSearchUsers = async () => {
+    try {
+      const response = await UserService.findAll();
+      setUsers(response);
+      console.log(response);
+    } catch (error) {}
+  };
 
   const searchPostData = async () => {
     try {
@@ -55,6 +61,11 @@ const HomePage = () => {
       toast.error("Algo deu errado na criação");
     }
   };
+
+  useEffect(() => {
+    handleVerifyUser();
+    handleSearchUsers();
+  }, []);
 
   return (
     <main className="grid grid-cols-[auto_1fr_auto] h-dvh max-w-7xl mx-auto bg-[#070714] text-slate-100 font-sans">
@@ -170,35 +181,15 @@ const HomePage = () => {
           <h2 className="text-base font-bold mb-3 text-slate-100">
             Moradores da Casa
           </h2>
-          {[
-            { initials: "AN", from: "#6d28d9", to: "#a21caf", name: "Ana" },
-            {
-              initials: "BE",
-              from: "#0369a1",
-              to: "#0891b2",
-              name: "Bernardo",
-            },
-            { initials: "CA", from: "#065f46", to: "#059669", name: "Carlos" },
-            { initials: "DE", from: "#92400e", to: "#d97706", name: "Débora" },
-            { initials: "ED", from: "#7f1d1d", to: "#dc2626", name: "Eduardo" },
-            {
-              initials: "FE",
-              from: "#1e3a5f",
-              to: "#3b82f6",
-              name: "Fernanda",
-            },
-            { initials: "GU", from: "#3d1d7f", to: "#8b5cf6", name: "Gustavo" },
-          ].map(({ initials, from, to, name }) => (
-            <div key={name} className="flex items-center gap-3 py-2">
+          {
+          users && users.map((user) => (
+            <div key={user.name} className="flex items-center gap-3 py-2">
               <div
-                className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-xs"
-                style={{
-                  background: `linear-gradient(135deg, ${from}, ${to})`,
-                }}
+                className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-xs bg-gray-300/10"
               >
-                {initials}
+                {formatInitials(user?.username)}
               </div>
-              <p className="text-sm font-medium text-slate-300">{name}</p>
+              <p className="text-sm font-medium text-slate-300">{user?.name}</p>
             </div>
           ))}
         </div>
