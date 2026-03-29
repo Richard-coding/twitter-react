@@ -39,7 +39,7 @@ const HomePage = () => {
     try {
       const response = await UserService.findAll();
       setUsers(response);
-      console.log(response);
+
     } catch (error) {}
   };
 

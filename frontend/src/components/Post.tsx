@@ -10,7 +10,7 @@ const Post = ({
   userData,
 }: {
   data: IPost;
-  searchPostData: () => {};
+  searchPostData: () => void;
   userData: IUser;
 }) => {
   const [isEdit, setIsEdit] = useState<IPost | null>();
@@ -54,7 +54,7 @@ const Post = ({
       toast.error("Algo de errado aconteceu");
     }
   };
-
+  
   return (
     <article
       key={data.id}

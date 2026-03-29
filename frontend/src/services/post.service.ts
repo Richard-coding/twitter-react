@@ -11,7 +11,7 @@ export interface Like {
   updatedAt: string;
   deletedAt: null;
   userId: string;
-  postId: string;
+  postId: string; 
 }
 export interface IPost {
   id: string;

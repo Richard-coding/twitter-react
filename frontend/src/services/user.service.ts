@@ -25,12 +25,20 @@ export interface IUserProfile extends IUser {
   };
 }
 export const UserService = {
-  async getProfile(id: string): Promise<IUserProfile> {
-    const response = await api.get<IUserProfile>(`/users/${id}/profile`);
-    return response.data;
-  },
   async findAll(): Promise<any> {
     const response = await api.get<IUser>("/users");
+    return response.data;
+  },
+  async getProfile(username: string): Promise<IUserProfile> {
+    const response = await api.get<IUserProfile>(`/users/${username}/profile`);
+    return response.data;
+  },
+  async update(id: string, data: { bio: string }) {
+    const response = await api.patch(`/users/${id}`, data);
+    return response.data;
+  },
+  async getLikedPosts(username: string) {
+    const response = await api.get(`/users/${username}/likes`);
     return response.data;
   },
 };

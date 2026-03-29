@@ -59,7 +59,7 @@ const navItems = [
 export default function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const user: { name?: string, username?: string} = JSON.parse(
+  const user: { name?: string; username?: string } = JSON.parse(
     localStorage.getItem("user") || "{}",
   );
   const userInitials = user?.name
@@ -129,7 +129,9 @@ export default function AppSidebar() {
       {/* Avatar */}
       <div
         className="mt-auto flex items-center gap-3 p-3 rounded-full cursor-pointer hover:bg-white/5 transition-colors"
-        onClick={() => navigate(`/profile/${user.username}`)}
+        onClick={() => {
+          navigate(`/profile/${user.username}`);
+        }}
       >
         <div
           className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"

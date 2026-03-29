@@ -8,25 +8,6 @@ import Post from "../components/Post";
 import authService, { type IUserAuth } from "../services/auth.service";
 import { formatDate } from "../utils/formatDate";
 
-const MOCK_LIKED = [
-  {
-    id: "l1",
-    authorName: "Carlos",
-    authorInitials: "CA",
-    content: "Churrasco no domingo confirmado! Quem traz o carvão?",
-    time: "há 3h",
-    likes: 5,
-  },
-  {
-    id: "l2",
-    authorName: "Fernanda",
-    authorInitials: "FE",
-    content: "Série nova na Netflix: Nobody Wants This. Recomendo demais! 📺",
-    time: "há 2 dias",
-    likes: 4,
-  },
-];
-
 type Tab = "posts" | "likes";
 
 export default function ProfilePage() {
@@ -36,7 +17,7 @@ export default function ProfilePage() {
   const [editingBio, setEditingBio] = useState(false);
   const [bio, setBio] = useState<string | null>("");
   const [bioInput, setBioInput] = useState<string | null>("");
-  const [user, setUser] = useState<IUserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<IUserProfile | null>(null);
   const [posts, setPosts] = useState<IPost[] | null>(null);
 
   const navigate = useNavigate();
@@ -67,7 +48,7 @@ export default function ProfilePage() {
   const handleSearchProfile = async (id: string) => {
     try {
       const response = await UserService.getProfile(id);
-      setUser(response);
+      setUserProfile(response);
       setBio(response.bio);
       setBioInput(response.bio);
     } catch (error) {}
@@ -82,11 +63,30 @@ export default function ProfilePage() {
     }
   };
 
-  useEffect(() => {
-    if (user?.id) {
-      handleSearchPosts(user.id);
+  const handleEditProfile = async () => {
+    try {
+      const response = await UserService.update(userProfile!.id, {
+        bio: bioInput || "",
+      });
+      setBioInput(response.bio);
+      setBio(bioInput);
+    } catch (error) {
+      console.log(error);
     }
-  }, [user]);
+  };
+
+  const handlePostLiked = async () => {
+    try {
+      const posts = await UserService.getLikedPosts(userProfile!.username);
+      setPosts(posts);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    if (userProfile?.id) {
+      handleSearchPosts(userProfile.id);
+    }
+  }, [userProfile]);
 
   useEffect(() => {
     if (username) {
@@ -94,7 +94,7 @@ export default function ProfilePage() {
     } else {
       navigate("/home");
     }
-  }, []);
+  }, [username]);
 
   return (
     <main className="grid grid-cols-[auto_1fr_auto] h-dvh max-w-7xl mx-auto bg-[#070714] text-slate-100 font-sans">
@@ -123,10 +123,10 @@ export default function ProfilePage() {
           </button>
           <div>
             <h1 className="text-lg font-bold text-slate-100">
-              {user?.username}
+              {userProfile?.username}
             </h1>
             <p className="text-xs text-slate-500">
-              {user?.stats?.postsCount} posts
+              {userProfile?.stats?.postsCount} posts
             </p>
           </div>
         </div>
@@ -160,12 +160,12 @@ export default function ProfilePage() {
                 borderColor: "#070714",
               }}
             >
-              {formatInitials(user?.username)}
+              {formatInitials(userProfile?.username)}
             </div>
 
             {/* Botão */}
             <div className="mt-14">
-              {userLogged.id === user?.id ? (
+              {userLogged.id === userProfile?.id ? (
                 <button
                   onClick={() => setEditingBio(true)}
                   className="px-5 py-2 rounded-full text-sm font-bold border transition-all hover:bg-white/5"
@@ -203,9 +203,9 @@ export default function ProfilePage() {
           {/* Info */}
           <div className="mb-4">
             <h2 className="text-xl font-extrabold text-slate-100">
-              {user?.name}
+              {userProfile?.name}
             </h2>
-            <p className="text-slate-500 text-sm mb-3">@{user?.username}</p>
+            <p className="text-slate-500 text-sm mb-3">@{userProfile?.username}</p>
 
             {editingBio ? (
               <div className="mb-3">
@@ -228,6 +228,7 @@ export default function ProfilePage() {
                     onClick={() => {
                       setBio(bioInput);
                       setEditingBio(false);
+                      handleEditProfile();
                     }}
                     className="px-4 py-1.5 text-sm rounded-full font-bold text-white transition-all hover:opacity-85"
                     style={{
@@ -250,8 +251,8 @@ export default function ProfilePage() {
               </svg>
               <span>
                 Entrou em
-                {user?.createdAt
-                  ? " " + formatDate(user.createdAt)
+                {userProfile?.createdAt
+                  ? " " + formatDate(userProfile.createdAt)
                   : "Data desconhecida"}
               </span>
             </div>
@@ -261,13 +262,13 @@ export default function ProfilePage() {
           <div className="flex gap-5 mb-1 text-sm">
             <button className="hover:underline">
               <span className="font-bold text-slate-100">
-                {user?.stats?.followingCount}
+                {userProfile?.stats?.followingCount}
               </span>
               <span className="text-slate-500 ml-1">Seguindo</span>
             </button>
             <button className="hover:underline">
               <span className="font-bold text-slate-100">
-                {user?.stats?.followersCount}
+                {userProfile?.stats?.followersCount}
               </span>
               <span className="text-slate-500 ml-1">Seguidores</span>
             </button>
@@ -282,7 +283,15 @@ export default function ProfilePage() {
           {(["posts", "likes"] as Tab[]).map((t) => (
             <button
               key={t}
-              onClick={() => setTab(t)}
+              onClick={() => {
+                setTab(t);
+
+                if (t === "likes") {
+                  handlePostLiked();
+                } else if (userProfile?.id) {
+                  handleSearchPosts(userProfile.id);
+                }
+              }}
               className={`flex-1 py-4 text-sm font-semibold transition-colors relative ${
                 tab === t
                   ? "text-slate-100"
@@ -306,49 +315,23 @@ export default function ProfilePage() {
         {tab === "posts"
           ? posts &&
             posts?.length > 0 &&
-            user &&
+            userProfile &&
             posts?.map((post) => (
               <Post
+                key={post.id}
                 data={post}
-                searchPostData={() => handleSearchPosts(user.id)}
+                searchPostData={() => handleSearchPosts(userProfile.id)}
                 userData={userLogged}
               />
             ))
-          : MOCK_LIKED.map((post) => (
-              <article
+          : userProfile &&
+            posts?.map((post) => (
+              <Post
                 key={post.id}
-                className="flex gap-3 p-4 hover:bg-white/2 transition-colors cursor-pointer"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
-              >
-                <div
-                  className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm"
-                  style={{
-                    background: "linear-gradient(135deg, #065f46, #059669)",
-                  }}
-                >
-                  {post.authorInitials}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <span className="font-bold text-sm text-slate-100">
-                      {post.authorName}
-                    </span>
-                    <span className="text-slate-600 text-sm">·</span>
-                    <span className="text-slate-500 text-sm">{post.time}</span>
-                  </div>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-300">
-                    {post.content}
-                  </p>
-                  <div className="flex gap-5 mt-3 text-pink-400 text-sm">
-                    <span className="flex items-center gap-1.5">
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                        <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z" />
-                      </svg>
-                      {post.likes}
-                    </span>
-                  </div>
-                </div>
-              </article>
+                data={post}
+                searchPostData={handlePostLiked}
+                userData={userProfile}
+              />
             ))}
       </section>
 

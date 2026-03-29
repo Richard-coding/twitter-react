@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { Post } from '../post/entities/post.entity';
-import { Follow } from '../follow/entities/follow.entity';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User } from "./entities/user.entity";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { Post } from "../post/entities/post.entity";
+import { Follow } from "../follow/entities/follow.entity";
+import { Like } from "../post/entities/like.entity";
 
 export interface PublicProfile {
   id: string;
@@ -30,6 +31,8 @@ export class UserService {
     private readonly postRepository: Repository<Post>,
     @InjectRepository(Follow)
     private readonly followRepository: Repository<Follow>,
+    @InjectRepository(Like)
+    private readonly likeRepository: Repository<Like>,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -42,18 +45,24 @@ export class UserService {
     return user;
   }
 
-  async getProfile(username: string, currentUserId: string): Promise<PublicProfile> {
-    const user = await this.userRepository.findOne({ where: { username: username.toLocaleLowerCase() } });
-    if (!user) throw new NotFoundException('User not found');
+  async getProfile(
+    username: string,
+    currentUserId: string,
+  ): Promise<PublicProfile> {
+    const user = await this.userRepository.findOne({
+      where: { username: username.toLocaleLowerCase() },
+    });
+    if (!user) throw new NotFoundException("User not found");
 
-    const [postsCount, followersCount, followingCount, followRecord] = await Promise.all([
-      this.postRepository.count({ where: { userId: user.id } }),
-      this.followRepository.count({ where: { followingId: user.id } }),
-      this.followRepository.count({ where: { followerId: user.id } }),
-      this.followRepository.findOne({
-        where: { followerId: currentUserId, followingId: user.id },
-      }),
-    ]);
+    const [postsCount, followersCount, followingCount, followRecord] =
+      await Promise.all([
+        this.postRepository.count({ where: { userId: user.id } }),
+        this.followRepository.count({ where: { followingId: user.id } }),
+        this.followRepository.count({ where: { followerId: user.id } }),
+        this.followRepository.findOne({
+          where: { followerId: currentUserId, followingId: user.id },
+        }),
+      ]);
 
     const { password, ...safeUser } = user as any;
 
@@ -68,6 +77,34 @@ export class UserService {
     const user = await this.findOne(id);
     Object.assign(user, updateUserDto);
     return this.userRepository.save(user);
+  }
+
+  async getLikedPosts(
+    username: string,
+    currentUserId: string,
+  ): Promise<Post[]> {
+    const user = await this.userRepository.findOne({
+      where: { username: username.toLocaleLowerCase() },
+    });
+    if (!user) throw new NotFoundException("User not found");
+
+    const likedItems = await this.likeRepository.find({
+      where: { userId: user.id },
+      relations: [
+        "post",
+        "post.user",
+        "post.likes",
+        "post.reactions",
+        "post.reactions.user",
+      ],
+      order: { createdAt: "DESC" },
+    });
+
+    return likedItems.map((like) => ({
+      ...like.post,
+      likes: like.post.likes,
+      user: like.post.user,
+    }));
   }
 
   async remove(id: string): Promise<void> {
