@@ -194,7 +194,7 @@ const HomePage = () => {
                   {formatInitials(user?.username)}
                 </div>
                 <p className="text-sm font-medium text-slate-300">
-                  {user?.name}
+                  {user.name}
                 </p>
               </div>
             ))}
@@ -219,7 +219,7 @@ const HomePage = () => {
                 .reduce((acc, p) => acc + (p.likes?.length ?? 0), 0)
                 .toString(),
             },
-            { label: "Moradores ativos", value: "7" },
+            { label: "Moradores ativos", value: users?.length },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between items-center py-2">
               <p className="text-sm text-slate-400">{label}</p>

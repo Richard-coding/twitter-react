@@ -7,13 +7,15 @@ import PostService, { type IPost } from "../services/post.service";
 import Post from "../components/Post";
 import authService, { type IUserAuth } from "../services/auth.service";
 import { formatDate } from "../utils/formatDate";
+import { FollowService, type IFollow } from "../services/follow.service";
 
 type Tab = "posts" | "likes";
 
 export default function ProfilePage() {
   const { username } = useParams();
   const [tab, setTab] = useState<Tab>("posts");
-  const [following, setFollowing] = useState(false);
+  const [following, setFollowing] = useState<IFollow[]>([]);
+  const [followers, setFollowers] = useState<IFollow[]>([]);
   const [editingBio, setEditingBio] = useState(false);
   const [bio, setBio] = useState<string | null>("");
   const [bioInput, setBioInput] = useState<string | null>("");
@@ -23,7 +25,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
 
-  const [userLogged, setUserLogged] = useState<IUserAuth>(() => {
+  const [userLogged, setUserLogged] = useState<IUserAuth | null>(() => {
     const userStr = localStorage.getItem("user");
     return userStr ? JSON.parse(userStr) : null;
   });
@@ -82,9 +84,50 @@ export default function ProfilePage() {
     } catch (error) {}
   };
 
+  const followersVerify = followers.some(
+    (user) => user.followerId === userLogged?.id,
+  );
+  
+  const handleFollow = async () => {
+    if (!userProfile) return null;
+
+    try {
+      if (followersVerify) {
+        await FollowService.unfollow(userProfile.id!);
+      } else {
+        await FollowService.follow(userProfile.id);
+      }
+
+      await handleSearchFollowers(userProfile.id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSearchFollowers = async (userId: string) => {
+    try {
+      const response = await FollowService.getFollowers(userId);
+      setFollowers(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSearchFollowing = async () => {
+    if (!userProfile?.id) return null;
+    try {
+      const response = await FollowService.getFollowing(userProfile?.id);
+      setFollowing(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (userProfile?.id) {
       handleSearchPosts(userProfile.id);
+      handleSearchFollowers(userProfile.id);
+      handleSearchFollowing();
     }
   }, [userProfile]);
 
@@ -165,7 +208,7 @@ export default function ProfilePage() {
 
             {/* Botão */}
             <div className="mt-14">
-              {userLogged.id === userProfile?.id ? (
+              {userLogged && userLogged.id === userProfile?.id ? (
                 <button
                   onClick={() => setEditingBio(true)}
                   className="px-5 py-2 rounded-full text-sm font-bold border transition-all hover:bg-white/5"
@@ -178,10 +221,12 @@ export default function ProfilePage() {
                 </button>
               ) : (
                 <button
-                  onClick={() => setFollowing((f) => !f)}
+                  onClick={() => {
+                    handleFollow();
+                  }}
                   className="px-5 py-2 rounded-full text-sm font-bold transition-all"
                   style={
-                    following
+                    followersVerify
                       ? {
                           border: "1px solid rgba(255,255,255,0.2)",
                           color: "#e2e8f0",
@@ -194,7 +239,7 @@ export default function ProfilePage() {
                         }
                   }
                 >
-                  {following ? "Seguindo" : "Seguir"}
+                  {followersVerify ? "Seguindo" : "Seguir"}
                 </button>
               )}
             </div>
@@ -205,7 +250,9 @@ export default function ProfilePage() {
             <h2 className="text-xl font-extrabold text-slate-100">
               {userProfile?.name}
             </h2>
-            <p className="text-slate-500 text-sm mb-3">@{userProfile?.username}</p>
+            <p className="text-slate-500 text-sm mb-3">
+              @{userProfile?.username}
+            </p>
 
             {editingBio ? (
               <div className="mb-3">
@@ -262,13 +309,13 @@ export default function ProfilePage() {
           <div className="flex gap-5 mb-1 text-sm">
             <button className="hover:underline">
               <span className="font-bold text-slate-100">
-                {userProfile?.stats?.followingCount}
+                {following.length}
               </span>
               <span className="text-slate-500 ml-1">Seguindo</span>
             </button>
             <button className="hover:underline">
               <span className="font-bold text-slate-100">
-                {userProfile?.stats?.followersCount}
+                {followers?.length}
               </span>
               <span className="text-slate-500 ml-1">Seguidores</span>
             </button>
@@ -321,7 +368,7 @@ export default function ProfilePage() {
                 key={post.id}
                 data={post}
                 searchPostData={() => handleSearchPosts(userProfile.id)}
-                userData={userLogged}
+                userData={userLogged!}
               />
             ))
           : userProfile &&
