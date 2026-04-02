@@ -170,10 +170,7 @@ const HomePage = () => {
           />
         ))}
 
-        <div
-          ref={infinitScroll}
-          style={{ background: "red", height: "40px" }}
-        />
+        <div ref={infinitScroll} style={{ height: "40px" }} />
       </section>
 
       {/* ── SIDEBAR DIREITA ── */}
