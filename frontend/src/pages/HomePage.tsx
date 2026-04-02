@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import authService, { type IUserAuth } from "../services/auth.service";
@@ -14,6 +14,8 @@ const HomePage = () => {
 
   const [input, setInput] = useState("");
   const [posts, setPosts] = useState<IPost[]>([]);
+  const [visiblePosts, setVisiblePosts] = useState(5);
+  const infinitScroll = useRef<HTMLDivElement>(null);
 
   const [user, setUser] = useState<IUserAuth>(() => {
     const userStr = localStorage.getItem("user");
@@ -39,7 +41,6 @@ const HomePage = () => {
     try {
       const response = await UserService.findAll();
       setUsers(response);
-
     } catch (error) {}
   };
 
@@ -47,7 +48,7 @@ const HomePage = () => {
     try {
       const response = await PostService.findAll();
       setPosts(response);
-      toast.success("Publicações atualizadas", {id: "search"});
+      toast.success("Publicações atualizadas", { id: "search" });
     } catch (error) {}
   };
 
@@ -65,6 +66,22 @@ const HomePage = () => {
   useEffect(() => {
     handleVerifyUser();
     handleSearchUsers();
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setVisiblePosts((prev) => prev + 5);
+      }
+    });
+
+    if (infinitScroll.current) {
+      observer.observe(infinitScroll.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return (
@@ -144,7 +161,7 @@ const HomePage = () => {
         </div>
 
         {/* Posts */}
-        {posts.map((post) => (
+        {posts.slice(0, visiblePosts).map((post) => (
           <Post
             key={post.id}
             data={post}
@@ -152,6 +169,11 @@ const HomePage = () => {
             userData={user}
           />
         ))}
+
+        <div
+          ref={infinitScroll}
+          style={{ background: "red", height: "40px" }}
+        />
       </section>
 
       {/* ── SIDEBAR DIREITA ── */}
